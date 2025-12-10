@@ -1,0 +1,40 @@
+{
+  "total_generated": 5200,
+  "valid_rows": 5200,
+  "failures": 0,
+  "checks": {
+    "row_count_passed": true,
+    "no_nulls": true,
+    "valid_enums": true,
+    "valid_ranges": true
+  },
+  "stats": {
+    "diseases": {
+      "PNEUMONIA": 419,
+      "AC_BRONC": 192,
+      "AC_APPEN": 368,
+      "GERD": 372,
+      "AC_PHARY": 536,
+      "OSTEO_ARTH": 296,
+      "AC_MI": 588,
+      "CON_DERM": 162,
+      "ALLER_RHIN": 151,
+      "LUMBAGO": 171,
+      "GEN_ANX": 170,
+      "MIGRAINE": 298,
+      "UTI_SIMPLE": 197,
+      "TENS_HEAD": 230,
+      "VIR_FLU": 244,
+      "AC_URTIC": 170,
+      "GASTRO_ENT": 218,
+      "HYPERTEN": 84,
+      "AC_SINUS": 109,
+      "STABLE_ANG": 225
+    },
+    "age_groups": {
+      "0-17": 183,
+      "18-64": 3394,
+      "65+": 1623
+    }
+  }
+}

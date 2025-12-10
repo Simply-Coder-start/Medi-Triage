@@ -1,0 +1,80 @@
+ID: row_00001 | Disease: Pneumonia (PNEUMONIA) | Conf: 0.38
+Context: 21y F, Onset: 2d
+Symptoms: ['b', 'b', 'a', 'a', 'c', 'b', 'a', 'b', 'b', 'a']
+--------------------------------------------------
+ID: row_00002 | Disease: Pneumonia (PNEUMONIA) | Conf: 0.29
+Context: 72y F, Onset: 12d
+Symptoms: ['b', 'a', 'b', 'b', 'a', 'c', 'b', 'b', 'b', 'b']
+--------------------------------------------------
+ID: row_00003 | Disease: Acute Bronchitis (AC_BRONC) | Conf: 0.43
+Context: 39y F, Onset: 7d
+Symptoms: ['b', 'b', 'b', 'a', 'a', 'b', 'c', 'a', 'b', 'b']
+--------------------------------------------------
+ID: row_00004 | Disease: Acute Appendicitis (AC_APPEN) | Conf: 0.85
+Context: 51y F, Onset: 9d
+Symptoms: ['c', 'a', 'a', 'c', 'b', 'a', 'b', 'c', 'c', 'b']
+--------------------------------------------------
+ID: row_00005 | Disease: Acute Bronchitis (AC_BRONC) | Conf: 0.26
+Context: 76y M, Onset: 11d
+Symptoms: ['b', 'c', 'b', 'a', 'b', 'b', 'b', 'b', 'c', 'a']
+--------------------------------------------------
+ID: row_00006 | Disease: Gastroesophageal Reflux (GERD) | Conf: 0.23
+Context: 26y F, Onset: 10d
+Symptoms: ['c', 'c', 'b', 'b', 'a', 'c', 'b', 'a', 'b', 'a']
+--------------------------------------------------
+ID: row_00007 | Disease: Acute Pharyngitis (AC_PHARY) | Conf: 0.32
+Context: 47y M, Onset: 5d
+Symptoms: ['a', 'c', 'a', 'b', 'c', 'b', 'b', 'c', 'b', 'a']
+--------------------------------------------------
+ID: row_00008 | Disease: Osteoarthritis (OSTEO_ARTH) | Conf: 0.3
+Context: 42y F, Onset: 2d
+Symptoms: ['c', 'c', 'c', 'a', 'a', 'c', 'a', 'a', 'a', 'c']
+--------------------------------------------------
+ID: row_00009 | Disease: Acute Bronchitis (AC_BRONC) | Conf: 0.28
+Context: 54y M, Onset: 12d
+Symptoms: ['b', 'c', 'b', 'a', 'b', 'b', 'b', 'b', 'a', 'b']
+--------------------------------------------------
+ID: row_00010 | Disease: Acute Myocardial Infarction (AC_MI) | Conf: 0.85
+Context: 76y F, Onset: 5d
+Symptoms: ['b', 'b', 'a', 'b', 'b', 'b', 'a', 'a', 'a', 'c']
+--------------------------------------------------
+ID: row_00011 | Disease: Contact Dermatitis (CON_DERM) | Conf: 0.31
+Context: 19y F, Onset: 14d
+Symptoms: ['c', 'c', 'a', 'a', 'c', 'b', 'c', 'b', 'b', 'b']
+--------------------------------------------------
+ID: row_00012 | Disease: Acute Pharyngitis (AC_PHARY) | Conf: 0.23
+Context: 72y F, Onset: 14d
+Symptoms: ['a', 'b', 'a', 'c', 'a', 'c', 'b', 'c', 'c', 'a']
+--------------------------------------------------
+ID: row_00013 | Disease: Gastroesophageal Reflux (GERD) | Conf: 0.34
+Context: 70y M, Onset: 5d
+Symptoms: ['c', 'c', 'c', 'a', 'b', 'c', 'b', 'b', 'b', 'b']
+--------------------------------------------------
+ID: row_00014 | Disease: Allergic Rhinitis (ALLER_RHIN) | Conf: 0.24
+Context: 60y F, Onset: 4d
+Symptoms: ['a', 'c', 'a', 'b', 'b', 'c', 'c', 'c', 'b', 'b']
+--------------------------------------------------
+ID: row_00015 | Disease: Acute Bronchitis (AC_BRONC) | Conf: 0.29
+Context: 56y F, Onset: 5d
+Symptoms: ['b', 'c', 'b', 'a', 'a', 'b', 'b', 'b', 'b', 'a']
+--------------------------------------------------
+ID: row_00016 | Disease: Allergic Rhinitis (ALLER_RHIN) | Conf: 0.25
+Context: 60y M, Onset: 3d
+Symptoms: ['a', 'c', 'c', 'c', 'c', 'b', 'c', 'c', 'c', 'b']
+--------------------------------------------------
+ID: row_00017 | Disease: Contact Dermatitis (CON_DERM) | Conf: 0.28
+Context: 49y F, Onset: 2d
+Symptoms: ['c', 'c', 'c', 'b', 'b', 'a', 'c', 'a', 'b', 'b']
+--------------------------------------------------
+ID: row_00018 | Disease: Gastroesophageal Reflux (GERD) | Conf: 0.24
+Context: 54y M, Onset: 14d
+Symptoms: ['b', 'b', 'b', 'a', 'b', 'c', 'b', 'a', 'c', 'b']
+--------------------------------------------------
+ID: row_00019 | Disease: Acute Appendicitis (AC_APPEN) | Conf: 0.85
+Context: 19y M, Onset: 6d
+Symptoms: ['c', 'a', 'b', 'b', 'b', 'a', 'c', 'a', 'b', 'c']
+--------------------------------------------------
+ID: row_00020 | Disease: Acute Lumbago (LUMBAGO) | Conf: 0.36
+Context: 50y F, Onset: 11d
+Symptoms: ['c', 'a', 'c', 'c', 'a', 'a', 'a', 'b', 'b', 'c']
+--------------------------------------------------

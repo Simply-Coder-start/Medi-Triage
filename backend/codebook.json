@@ -1,0 +1,49 @@
+{
+  "diseases": {
+    "AC_PHARY": "Acute Pharyngitis",
+    "VIR_FLU": "Viral Influenza",
+    "AC_BRONC": "Acute Bronchitis",
+    "PNEUMONIA": "Pneumonia",
+    "AC_MI": "Acute Myocardial Infarction",
+    "GERD": "Gastroesophageal Reflux",
+    "GASTRO_ENT": "Gastroenteritis",
+    "AC_APPEN": "Acute Appendicitis",
+    "MIGRAINE": "Migraine",
+    "TENS_HEAD": "Tension Headache",
+    "AC_SINUS": "Acute Sinusitis",
+    "ALLER_RHIN": "Allergic Rhinitis",
+    "OSTEO_ARTH": "Osteoarthritis",
+    "LUMBAGO": "Acute Lumbago",
+    "GEN_ANX": "Generalized Anxiety",
+    "UTI_SIMPLE": "Uncomplicated UTI",
+    "CON_DERM": "Contact Dermatitis",
+    "AC_URTIC": "Acute Urticaria",
+    "HYPERTEN": "Hypertension (Uncontrolled)",
+    "STABLE_ANG": "Stable Angina"
+  },
+  "specialties": {
+    "GP": "General Practitioner",
+    "ENT": "Otolaryngologist",
+    "CARDIO": "Cardiologist",
+    "PULM": "Pulmonologist",
+    "GASTRO": "Gastroenterologist",
+    "NEURO": "Neurologist",
+    "DERM": "Dermatologist",
+    "ORTHO": "Orthopedist",
+    "ER": "Emergency Medicine",
+    "ENDO": "Endocrinologist",
+    "PSYCH": "Psychiatrist"
+  },
+  "questions": {
+    "q1": "Location",
+    "q2": "Nature",
+    "q3": "Fever",
+    "q4": "Respiratory",
+    "q5": "GI",
+    "q6": "Onset",
+    "q7": "Triggers",
+    "q8": "Severity",
+    "q9": "History",
+    "q10": "Systemic"
+  }
+}
