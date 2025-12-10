@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Medi Triage — Gmail Signup</title>
+<style>
+  :root{ --bg:#0f1724; --muted:#9aa7c0; --danger:#ef4444; --accent1: #7b61ff; --accent2: #06f; }
+  html,body{height:100%; margin:0; background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(123,97,255,0.06), transparent),
+    linear-gradient(180deg,#071026 0%, #07162a 100%); color:#e6eef8; font-family:Inter,system-ui,Arial,Helvetica,sans-serif;}
+  html.light-mode, html.light-mode body{ --bg: #f7fafc; --muted: #475569; --danger: #dc2626; }
+  html.light-mode body{ background: linear-gradient(180deg,#ffffff 0%, #f1f5f9 100%); color:#0b1220; }
+
+  .app{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;}
+  .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.05); border-radius:18px; box-shadow: 0 6px 30px rgba(2,6,23,0.6); padding:22px; max-width:1100px; width:100%; position:relative;}
+
+  .brand-row{ display:flex; gap:12px; align-items:center; margin-bottom:8px; }
+  .logo{ width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:white; overflow:hidden; }
+  h1{margin:0} .tiny{ font-size:12px; color:var(--muted); }
+  .center{ display:flex; flex-direction:column; align-items:center; text-align:center; }
+
+  /* --- Top controls (updated) --- */
+  .top-controls{
+    position:fixed;
+    right:14px;
+    top:14px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    z-index:9999;
+    background:transparent;
+    padding:6px;
+  }
+
+  .top-controls .ctrl-btn{
+    background: rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.04);
+    padding:8px 12px;
+    border-radius:12px;
+    cursor:pointer;
+    color:var(--muted);
+    font-weight:600;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    backdrop-filter: blur(6px);
+    transition: transform .14s ease, box-shadow .14s ease;
+  }
+
+  .top-controls .ctrl-btn:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+
+  @keyframes doctorPulse {
+    0% { box-shadow: 0 0 0 0 rgba(123,97,255,0.16); }
+    70% { box-shadow: 0 0 0 10px rgba(123,97,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(123,97,255,0); }
+  }
+  .top-controls .ctrl-btn.doctor {
+    border: 1px solid rgba(123,97,255,0.28);
+    animation: doctorPulse 2.8s infinite;
+  }
+
+  .top-controls .ctrl-btn img{ display:block; width:20px; height:20px; border-radius:6px; object-fit:cover; }
+
+  .landing{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:center; }
+
+  .big-btn{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; border-radius:20px; cursor:pointer; transition:transform .28s, box-shadow .28s; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); text-align:center; padding:18px; }
+  .big-btn:hover{ transform:translateY(-8px) scale(1.01); box-shadow:0 18px 60px rgba(0,0,0,0.6); }
+
+  .big-btn.patient-large{ height:260px; grid-column: span 2; font-size:16px; }
+  .big-btn.patient-large .big-emoji{ font-size:64px; }
+  .big-btn.patient-large .big-title{ font-size:34px; font-weight:800; }
+
+  .big-emoji{ font-size:64px; } .big-title{ font-size:34px; font-weight:800; } .big-sub{ color:var(--muted); font-size:14px; text-align:center; }
+
+  .page{ display:none; } .page.active{ display:block; animation:fadeInUp .32s ease both; }
+  @keyframes fadeInUp{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+  .field{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  input, textarea, select{ background:transparent; border:1px solid rgba(255,255,255,0.04); padding:12px 14px; border-radius:12px; color:#e6eef8; outline:none; font-size:14px; }
+  textarea{ resize:vertical; min-height:80px; }
+  .btn{ padding:10px 14px; border-radius:12px; border:none; cursor:pointer; font-weight:600; background:#0f1b2a; color:#e6eef8; }
+  .btn.primary{ background: linear-gradient(90deg,var(--accent2),var(--accent1)); color:white; box-shadow:0 8px 30px rgba(107,72,255,0.12); }
+  .btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted); }
+
+  .btn.gmail{ background: #fff; color:#111; border:1px solid rgba(0,0,0,0.06); display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; }
+
+  html.light-mode input, html.light-mode textarea, html.light-mode select{ color:#0b1220; border:1px solid rgba(2,6,23,0.06); background:transparent; }
+  html.light-mode .btn{ background:#ffffff; color:#0b1220; border:1px solid rgba(2,6,23,0.06); }
+  html.light-mode .btn.primary{ background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; box-shadow:0 8px 30px rgba(107,72,255,0.06); }
+  html.light-mode .btn.ghost{ background:transparent; border:1px solid rgba(2,6,23,0.06); color:var(--muted); }
+
+  .q-card{ margin-top:12px; } .question{ font-size:18px; font-weight:700; margin-bottom:12px; }
+  .options{ display:grid; gap:8px; } .option{ padding:12px; border-radius:12px; background:rgba(255,255,255,0.02); cursor:pointer; }
+  .option.selected{ transform:translateY(-4px); box-shadow:0 14px 40px rgba(7,20,40,0.6); border:1px solid rgba(107,72,255,0.36); }
+
+  .doctor-list{ display:grid; gap:10px; margin-top:12px; }
+  .doctor-item{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:12px; background: rgba(0,0,0,0.24); border:1px solid rgba(255,255,255,0.02); }
+  .doc-avatar{ width:56px; height:56px; border-radius:12px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:white; }
+  .doc-meta{ flex:1; } .doc-name{ font-weight:700; } .doc-sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+  .modal-backdrop{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.6); z-index:1200; }
+  .modal{ background:#061226; border-radius:12px; padding:18px; width:420px; max-width:92%; border:1px solid rgba(255,255,255,0.04); box-shadow:0 18px 60px rgba(0,0,0,0.6); }
+  .error-text{ color:var(--danger); font-weight:700; text-align:center; margin-top:8px; }
+
+  .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:32px; background:linear-gradient(90deg,var(--accent2),var(--accent1)); padding:10px 16px; border-radius:12px; color:white; box-shadow:0 10px 40px rgba(11,12,30,0.6); display:none; z-index:1000; }
+
+  @media (max-width:880px){
+    .landing{ grid-template-columns:1fr; }
+    .big-btn.patient-large{ grid-column: auto; height:200px; }
+    .card{ padding:16px; }
+    .top-controls{ right:10px; top:10px; gap:6px; }
+  }
+
+  /* ---------- Doctor Dashboard styles (kept minimal & inside same file) ---------- */
+  .dash-page { display: none; }
+  .dash-page.active { display: block; animation: fadeInUp .32s ease both; }
+  .dashboard { display: grid; grid-template-columns: 1fr 360px; gap:16px; margin-top:8px; }
+  .panel { background: rgba(0,0,0,0.16); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.02); }
+  .kpis { display:flex; gap:10px; }
+  .kpi { flex:1; padding:12px; border-radius:10px; text-align:center; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); }
+  .kpi h3 { margin:0; font-size:13px; color:var(--muted); font-weight:700; }
+  .kpi .num { font-size:20px; font-weight:800; margin-top:6px; }
+  .requests-list { display:flex; flex-direction:column; gap:8px; max-height:460px; overflow:auto; margin-top:8px; }
+  .req-item { display:flex; gap:10px; padding:10px; border-radius:10px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); align-items:flex-start; }
+  .req-avatar { width:44px; height:44px; border-radius:10px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; display:flex; align-items:center; justify-content:center; font-weight:800; }
+  .req-main { flex:1; }
+  .req-title { font-weight:800; }
+  .badge { padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+  .badge.high { color:var(--danger); background: rgba(239,68,68,0.08); }
+  .badge.medium { color:#f59e0b; background: rgba(245,158,11,0.06); }
+  .badge.low { color:#10b981; background: rgba(16,185,129,0.04); }
+  .appt-list { display:flex; flex-direction:column; gap:8px; max-height:300px; overflow:auto; margin-top:8px; }
+  .appt-item { padding:8px; border-radius:8px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); display:flex; justify-content:space-between; align-items:center; }
+
+  /* ---------- Patient Dashboard specific styles ---------- */
+  .patient-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+  .patient-left{ display:flex; gap:12px; align-items:center; }
+  .patient-avatar{ width:64px; height:64px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; }
+  .patient-meta{ display:flex; flex-direction:column; gap:4px; }
+  .patient-meta .name{ font-size:18px; font-weight:800; }
+  .patient-meta .small{ font-size:13px; color:var(--muted); }
+  .patient-right{ display:flex; gap:8px; align-items:center; }
+
+  .main-cards{ display:grid; grid-template-columns: 1fr 220px; gap:12px; margin-bottom:12px; align-items:start; }
+  .card-large{ background: rgba(255,255,255,0.02); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); display:flex; flex-direction:column; gap:12px; }
+  .small-card{ background: rgba(255,255,255,0.01); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); text-align:center; }
+
+  .grid-sections{ display:grid; grid-template-columns: 1fr 360px; gap:12px; }
+  .timeline-item{ padding:8px; border-radius:10px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); margin-bottom:8px; }
+
+  .bottom-nav{ display:none; position:fixed; left:50%; transform:translateX(-50%); bottom:12px; background:rgba(0,0,0,0.4); padding:6px 10px; border-radius:999px; gap:10px; z-index:999; }
+  .bottom-nav .b-item{ padding:8px 10px; border-radius:10px; background:transparent; border:none; color:var(--muted); font-weight:700; cursor:pointer; }
+  @media (max-width:880px){ .bottom-nav{ display:flex; } .card{ padding-bottom:80px; } .dashboard, .grid-sections { grid-template-columns: 1fr; } .main-cards{ grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="card" role="main" aria-labelledby="appTitle">
+
+      <!-- top-controls (kept as in your file) -->
+      <div class="top-controls" aria-hidden="false" id="topControls">
+        <button class="ctrl-btn" id="ctrl-blog" title="Open Health Blog / quick advice">
+          <span style="font-size:16px; line-height:1;">📝</span>
+          <span class="label">Health Blog</span>
+        </button>
+
+        <button class="ctrl-btn" id="ctrl-theme" title="Toggle dark / light">
+          <span style="font-size:16px; line-height:1;">🌙</span>
+          <span class="label">Theme</span>
+        </button>
+
+        <button class="ctrl-btn" id="ctrl-sub" title="Subscribe">
+          <span style="font-size:16px; line-height:1;">🔔</span>
+          <span class="label">Subscribe</span>
+        </button>
+
+        <button class="ctrl-btn doctor" id="ctrl-profile" title="Doctor profile (click to sign in)">
+          <span style="font-size:16px; line-height:1;">👨‍⚕️</span>
+          <span class="label">Doctor</span>
+        </button>
+      </div>
+
+      <div class="brand-row">
+        <div class="logo"><img src="https://image2url.com/images/1765345348431-ccebf22a-9a7e-41c3-af30-34f4c06da4d8.jpeg" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"/></div>
+        <div>
+          <h1 id="appTitle">Medi Triage</h1>
+          <div class="tiny">Gmail signup added</div>
+        </div>
+      </div>
+
+      <!-- Landing: main content -->
+      <section id="page-landing" class="page active">
+        <div class="landing">
+          <div class="big-btn patient-large" id="btn-patient" role="button" tabindex="0">
+            <div class="big-emoji">🩺👩‍⚕️</div>
+            <div class="big-title">I am a Patient</div>
+            <div class="big-sub">Quick symptoms test → suggested doctors → book</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;">
+            <div style="display:flex;gap:8px;">
+              <button class="btn ghost" id="landing-blog-mini">Blog</button>
+              <button class="btn ghost" id="landing-sub-mini">Subscribe</button>
+              <button class="btn ghost" id="landing-doctor-mini" title="Doctor login">I am a Doctor</button>
+            </div>
+            <div style="margin-top:8px;color:var(--muted);font-size:13px;">
+              Clinician features are hidden from the main patient flow.
+            </div>
+          </div>
+        </div>
+        <p class="tiny" style="margin-top:14px;">Tip: Click Patient to try the flow: signup → main symptom → 10 MCQ → suggested doctors. Use Health Blog to type problem and get quick home tips.</p>
+      </section>
+
+      <!-- Patient signup -->
+      <section id="page-patient-signup" class="page">
+        <div class="center" style="gap:10px;">
+          <h2>Patient — Create Account</h2>
+          <p class="tiny">Quick signup — you'll go to Patient Dashboard after Create & Enter</p>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="field"><label>Full name <input id="ps-name" type="text" placeholder="e.g., Pritam Sahoo"></label></div>
+          <div class="field"><label>Username <input id="ps-username" type="text" placeholder="choose username (optional)"></label></div>
+          <div class="field"><label>Password <input id="ps-password" type="password" placeholder="password (min 6 chars)"></label></div>
+
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+            <button class="btn primary" id="ps-create">Create & Enter</button>
+            <button class="btn ghost" id="ps-back">Back</button>
+          </div>
+
+          <div style="margin-top:12px; text-align:center; display:flex; flex-direction:column; align-items:center;">
+            <div class="tiny" style="margin-bottom:8px">Or</div>
+            <button id="ps-gmail" class="btn gmail" title="Sign up with Gmail">
+              <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M43 12H5v24h38V12z" fill="#fff"/><path d="M6 12l17.5 12L6 36V12z" fill="#d93025"/><path d="M42 12l-17.5 12L42 36V12z" fill="#1a73e8"/></svg>
+              Sign up with Gmail
+            </button>
+            <div id="ps-error" class="error-text" style="display:none"></div>
+            <div id="ps-gmail-note" class="tiny" style="margin-top:8px;color:var(--muted)">Use a <strong>@gmail.com</strong> address.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Patient Dashboard (NEW) -->
+      <section id="page-patient-dashboard" class="page">
+        <div class="patient-header">
+          <div class="patient-left">
+            <div id="patient-avatar" class="patient-avatar">PS</div>
+            <div class="patient-meta">
+              <div id="patient-name" class="name">Hello, Patient 👋</div>
+              <div id="patient-quick" class="small">Age: — • Gender: — • Last check-up: —</div>
+            </div>
+          </div>
+          <div class="patient-right">
+            <button class="btn ghost" id="open-healthblog">Health Blog</button>
+            <button class="btn ghost" id="open-sub">Subscription</button>
+            <button class="btn ghost" id="open-profile">Profile</button>
+            <button class="btn ghost" id="toggle-theme-dash">Theme</button>
+            <button class="btn ghost" id="patient-logout">Logout</button>
+          </div>
+        </div>
+
+        <div class="main-cards">
+          <div class="card-large">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div style="font-weight:800;font-size:20px">I am a Patient</div>
+                <div class="tiny" style="margin-top:6px;color:var(--muted)">Main patient entry: symptom checker, requests, appointments.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn primary" id="dash-symptom-btn">Symptom Checker</button>
+                <button class="btn ghost" id="dash-new-request">Send Request</button>
+              </div>
+            </div>
+
+            <div style="margin-top:12px" id="dash-widgets">
+              <div class="grid-sections" style="margin-top:12px">
+                <div>
+                  <div class="panel" id="panel-requests">
+                    <h3>My Requests</h3>
+                    <div id="dash-requests" style="margin-top:8px"></div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-appointments">
+                    <h3>My Appointments</h3>
+                    <div id="dash-appointments" style="margin-top:8px"></div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-reports">
+                    <h3>My Reports</h3>
+                    <div class="tiny" style="margin-top:8px;color:var(--muted)">Upload / View lab reports (demo: list files)</div>
+                    <div id="dash-reports" style="margin-top:8px"></div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-timeline">
+                    <h3>Health Timeline</h3>
+                    <div id="dash-timeline" style="margin-top:8px"></div>
+                    <div style="margin-top:8px;display:flex;gap:8px">
+                      <input id="timeline-note" placeholder="Add daily note (symptom / sleep / water)" style="flex:1;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04)">
+                      <button class="btn primary" id="timeline-add">Add</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="panel" id="panel-blog">
+                    <h3>Health Blog — AI Suggestions</h3>
+                    <div class="tiny" style="margin-top:8px;color:var(--muted)">Type problem and get quick tips</div>
+                    <div style="margin-top:8px">
+                      <div class="field"><input id="dash-blog-input" placeholder="e.g., headache since morning"></div>
+                      <div style="display:flex;gap:8px"><button class="btn primary" id="dash-blog-submit">Get Suggestion</button><button class="btn ghost" id="dash-blog-clear">Clear</button></div>
+                      <div id="dash-blog-result" class="tiny" style="margin-top:8px;color:var(--muted)"></div>
+                    </div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-saved-doctors">
+                    <h3>Saved Doctors</h3>
+                    <div id="dash-saved-doctors" style="margin-top:8px"></div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-notifications">
+                    <h3>Notifications</h3>
+                    <div id="dash-notifs" style="margin-top:8px"></div>
+                  </div>
+
+                  <div class="panel" style="margin-top:12px" id="panel-symptom-checker">
+                    <h3>Quick Symptom Checker</h3>
+                    <div style="margin-top:8px">
+                      <div class="field"><input id="quick-sym" placeholder="Type main symptom (fever, chest pain)"></div>
+                      <div style="display:flex;gap:8px"><button class="btn primary" id="quick-sym-start">Start Test</button></div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="small-card">
+            <div style="font-weight:800">I am a Doctor</div>
+            <div class="tiny" style="margin-top:6px;color:var(--muted)">Clinician sign-in & mini-dashboard</div>
+            <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+              <button class="btn ghost" id="mini-doctor-login">Doctor Login</button>
+              <button class="btn ghost" id="mini-doctor-create">Create Doctor Account</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- bottom nav (mobile) -->
+        <div class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+          <button class="b-item" id="nav-home">Home</button>
+          <button class="b-item" id="nav-blog">Blog</button>
+          <button class="b-item" id="nav-appts">Appointments</button>
+          <button class="b-item" id="nav-reports">Reports</button>
+          <button class="b-item" id="nav-profile">Profile</button>
+        </div>
+      </section>
+
+      <!-- Doctor signup -->
+      <section id="page-doctor-signup" class="page">
+        <div class="center" style="gap:10px;">
+          <h2>Doctor — Create Account</h2>
+          <p class="tiny">Register as a clinician to receive patient requests (demo uses localStorage).</p>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="field"><label>Full name <input id="ds-name" type="text" placeholder="e.g., Dr. Arup Sen"></label></div>
+          <div class="field"><label>Username <input id="ds-username" type="text" placeholder="choose username (optional)"></label></div>
+          <div class="field"><label>Password <input id="ds-password" type="password" placeholder="password (min 6 chars)"></label></div>
+          <div class="field"><label>Specialty <input id="ds-specialty" type="text" placeholder="e.g., Cardiology"></label></div>
+          <div class="field"><label>Phone <input id="ds-phone" type="text" placeholder="+91-"></label></div>
+          <div class="field"><label>Clinic / Location <input id="ds-location" type="text" placeholder="Clinic name, City"></label></div>
+
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+            <button class="btn primary" id="ds-create">Create & Enter</button>
+            <button class="btn ghost" id="ds-back">Back</button>
+          </div>
+
+          <div id="ds-error" class="error-text" style="display:none"></div>
+        </div>
+      </section>
+
+      <!-- Doctor login -->
+      <section id="page-doctor-login" class="page">
+        <div class="center" style="gap:10px;">
+          <h2>Doctor — Sign in</h2>
+          <p class="tiny">Use your username and password (demo: localStorage)</p>
+        </div>
+
+        <div style="margin-top:12px; max-width:520px;">
+          <div class="field"><label>Username <input id="dl-username" type="text" placeholder="username"></label></div>
+          <div class="field"><label>Password <input id="dl-password" type="password" placeholder="password"></label></div>
+
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+            <button class="btn primary" id="dl-login">Sign in</button>
+            <button class="btn ghost" id="dl-back">Back</button>
+          </div>
+
+          <div id="dl-error" class="error-text" style="display:none"></div>
+
+          <p class="tiny" style="margin-top:10px; text-align:center">
+            New? <button class="btn ghost" id="dl-goto-signup" style="padding:6px 10px;">Create doctor account</button>
+          </p>
+        </div>
+      </section>
+
+      <!-- Main Symptom (kept but patient now directed from dashboard) -->
+      <section id="page-main-symptom" class="page">
+        <div style="text-align:center;"><h2>Main Symptom</h2><p class="tiny">Type main symptom (fever, chest pain, rash)</p></div>
+        <div style="margin-top:12px;">
+          <div class="field"><input id="main-sym" type="text" placeholder="e.g., chest pain"></div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button class="btn primary" id="sym-next" disabled>Next — Start 10 MCQs</button>
+            <button class="btn ghost" id="sym-back">Back</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Test -->
+      <section id="page-test" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><h2>Quick Test</h2><div class="tiny">10 questions</div></div>
+          <div class="tiny">Progress: <span id="test-progress-text">0/10</span></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="progress" style="background: rgba(255,255,255,0.03); height:10px; border-radius:8px; overflow:hidden;">
+            <i id="test-progress-bar" style="display:block;height:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));border-radius:8px;width:0%;"></i>
+          </div>
+          <div class="q-card card" id="q-card" aria-live="polite"></div>
+          <div style="display:flex;justify-content:space-between;gap:12px;margin-top:12px;">
+            <button class="btn ghost" id="q-prev">◀ Prev</button>
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="q-save">Save & Exit</button>
+              <button class="btn primary" id="q-next">Next ▶</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Suggestion -->
+      <section id="page-suggest" class="page">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><h2>Suggested Specialty: <span id="suggest-specialty" style="color:#b6aaff;font-weight:800"></span></h2><div class="tiny" id="suggest-sub">Based on your answers</div></div>
+          <div class="tiny">Confidence: <strong id="suggest-confidence">High</strong></div>
+        </div>
+
+        <div class="doctor-list" id="doctor-list" style="margin-top:12px"></div>
+
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+          <button class="btn primary" id="send-request">Send Request (general)</button>
+          <button class="btn ghost" id="suggest-back">Back</button>
+        </div>
+      </section>
+
+      <!-- DOCTOR DASHBOARD (new page appended) -->
+      <section id="page-doctor-dashboard" class="page dash-page" aria-hidden="true">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h2>Doctor Dashboard</h2>
+            <div class="tiny" id="doctor-welcome">Welcome, Doctor</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn ghost" id="doctor-logout">Logout</button>
+          </div>
+        </div>
+
+        <div class="dashboard">
+          <div>
+            <div class="panel">
+              <div class="kpis">
+                <div class="kpi"><h3>Pending requests</h3><div id="kpi-pending" class="num">0</div></div>
+                <div class="kpi"><h3>Today's appts</h3><div id="kpi-today" class="num">0</div></div>
+                <div class="kpi"><h3>Unresolved</h3><div id="kpi-unresolved" class="num">0</div></div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:12px;">
+              <h3 style="margin:0 0 8px 0">Incoming Requests</h3>
+              <div class="requests-list" id="requests-list"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel">
+              <h3 style="margin:0 0 8px 0">Today's Appointments</h3>
+              <div class="appt-list" id="appt-list"></div>
+            </div>
+
+            <div class="panel" style="margin-top:12px;">
+              <h3 style="margin:0 0 8px 0">Quick Actions</h3>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <button class="btn primary" id="toggle-online">Go Offline</button>
+                <button class="btn ghost" id="refresh-dashboard">Refresh</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Health blog modal -->
+  <div id="blog-modal" class="modal-backdrop" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="blogTitle">
+      <h3 id="blogTitle">Health Blog — Quick Advice</h3>
+      <p class="tiny" style="margin-top:6px">Type your main problem (e.g., fever, rash, chest pain) and get immediate home suggestions.</p>
+      <div style="margin-top:10px">
+        <div class="field"><label>Problem <input id="blog-problem" type="text" placeholder="e.g., fever and headache"></label></div>
+        <div style="display:flex;gap:8px;align-items:center;"><button class="btn primary" id="blog-submit">Get Suggestion</button><button class="btn ghost" id="blog-cancel">Close</button></div>
+        <div id="blog-result" class="tiny" style="margin-top:12px;color:var(--muted)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request modal for doctor (reused hidden modal) -->
+  <div id="req-modal" class="modal-backdrop" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="req-title">Request</h3>
+      <div id="req-meta" class="tiny" style="margin-top:6px"></div>
+      <div id="req-body" style="margin-top:10px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button class="btn ghost" id="req-reject">Reject</button>
+        <button class="btn primary" id="req-accept">Accept & Book</button>
+      </div>
+
+      <div id="req-book-form" style="display:none;margin-top:12px">
+        <h4 style="margin:0 0 8px 0">Book Appointment</h4>
+        <div style="display:flex;gap:8px"><input id="book-date" type="date"><input id="book-time" type="time"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="btn ghost" id="book-cancel">Cancel</button>
+          <button class="btn primary" id="book-confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Storage helpers ---------- */
+const USERS_KEY = 'st_users', REQS_KEY = 'st_requests', APPTS_KEY = 'st_appts', TIMELINE_KEY = 'st_timeline';
+function load(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){return null;} }
+function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+if(!load(USERS_KEY)) save(USERS_KEY, []);
+if(!load(REQS_KEY)) save(REQS_KEY, []);
+if(!load(APPTS_KEY)) save(APPTS_KEY, []);
+
+/* ---------- Theme restore ---------- */
+(function(){
+  const t = localStorage.getItem('st_theme') || 'dark';
+  if(t === 'light') document.documentElement.classList.add('light-mode');
+  updateThemeButton();
+})();
+function updateThemeButton(){
+  const btn = document.getElementById('ctrl-theme');
+  if(!btn) return;
+  const isLight = document.documentElement.classList.contains('light-mode');
+  btn.textContent = isLight ? '☀️' : '🌙';
+  btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+}
+
+/* ---------- Top controls ---------- */
+document.getElementById('ctrl-theme').addEventListener('click', ()=> {
+  const isLight = document.documentElement.classList.toggle('light-mode');
+  localStorage.setItem('st_theme', isLight ? 'light' : 'dark');
+  updateThemeButton();
+});
+document.getElementById('ctrl-blog').addEventListener('click', ()=> openBlog());
+document.getElementById('landing-blog-mini').addEventListener('click', ()=> openBlog());
+document.getElementById('ctrl-sub').addEventListener('click', ()=> { showToast('Open Subscription (top right).'); openSubscription(); });
+
+/* ---------- Avatar / profile click ---------- */
+document.getElementById('ctrl-profile').addEventListener('click', ()=> {
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(sess && sess.role === 'doctor'){
+    renderDoctorDashboard(); // open dashboard if signed in as doctor
+  } else {
+    showPage('page-doctor-login');
+  }
+});
+
+/* landing doctor mini also opens doctor login */
+document.getElementById('landing-doctor-mini').addEventListener('click', ()=> showPage('page-doctor-login'));
+
+/* ---------- Blog modal ---------- */
+const blogModal = document.getElementById('blog-modal'), blogProblem = document.getElementById('blog-problem'), blogResult = document.getElementById('blog-result');
+document.getElementById('blog-cancel').addEventListener('click', closeBlogModal);
+document.getElementById('blog-submit').addEventListener('click', handleBlogSubmit);
+
+function openBlog(){ blogProblem.value=''; blogResult.textContent=''; blogModal.style.display='flex'; setTimeout(()=>blogProblem.focus(),80); }
+function closeBlogModal(){ blogModal.style.display='none'; blogResult.textContent=''; }
+
+function handleBlogSubmit(){
+  const txt = (blogProblem.value||'').trim().toLowerCase();
+  if(!txt){ blogResult.textContent = 'Please type your problem.'; return; }
+  let suggestion = '';
+  if(/fever|temperature|febr|hot/.test(txt)){
+    suggestion = "Home tips: rest, increase fluids, paracetamol if >38°C (follow dosing), cool compress to forehead. If breathlessness, persistent high fever, confusion → see a doctor.";
+  } else if(/chest|pain|angina|tighten|pressure|breath/.test(txt)){
+    suggestion = "Warning: chest pain can be serious. Sit down, avoid exertion. If severe/worsening/shortness of breath or sweating/fainting → seek emergency care immediately.";
+  } else if(/rash|itch|skin|eczema|red/.test(txt)){
+    suggestion = "Home tips: avoid scratching, gentle cleansers, cool compress, calamine for itching, keep area clean. If spreading rapidly, blistering, fever → see dermatologist.";
+  } else if(/back|joint|pain|sprain|fracture/.test(txt)){
+    suggestion = "Home tips: rest, ice for first 48 hours for sprain, elevation if swelling, avoid heavy lifting. If deformity, inability to move/weight-bear → see orthopedics.";
+  } else {
+    suggestion = "General advice: rest, hydration, monitor symptoms. If symptoms are severe (breathing difficulty, heavy bleeding, fainting, sudden severe pain) seek medical care.";
+  }
+  blogResult.innerHTML = `<div style="margin-bottom:8px">${suggestion}</div>`;
+}
+
+/* subscription quick open (reuses blog modal) */
+function openSubscription(){ openBlog(); blogProblem.value = ''; blogResult.innerHTML = `<div class="tiny">Enter your email at the bottom of this page to subscribe (this demo uses localStorage).</div>`; }
+
+/* ---------- Pages & navigation ---------- */
+const pages = {
+  'page-landing': document.getElementById('page-landing'),
+  'page-patient-signup': document.getElementById('page-patient-signup'),
+  'page-doctor-signup': document.getElementById('page-doctor-signup'),
+  'page-doctor-login': document.getElementById('page-doctor-login'),
+  'page-main-symptom': document.getElementById('page-main-symptom'),
+  'page-test': document.getElementById('page-test'),
+  'page-suggest': document.getElementById('page-suggest'),
+  'page-doctor-dashboard': document.getElementById('page-doctor-dashboard'),
+  'page-patient-dashboard': document.getElementById('page-patient-dashboard')
+};
+function showPage(id){
+  Object.values(pages).forEach(p=>p && p.classList && p.classList.remove('active'));
+  if(pages[id]) pages[id].classList.add('active');
+}
+
+/* Landing -> patient signup */
+document.getElementById('btn-patient').addEventListener('click', ()=> showPage('page-patient-signup'));
+
+/* ---------- Patient signup ---------- */
+const psName = document.getElementById('ps-name'), psUsername = document.getElementById('ps-username'), psPassword = document.getElementById('ps-password'), psCreate = document.getElementById('ps-create'), psBack = document.getElementById('ps-back'), psError = document.getElementById('ps-error');
+psBack.addEventListener('click', ()=> { psError.style.display='none'; showPage('page-landing'); });
+
+psCreate.addEventListener('click', ()=> {
+  psError.style.display='none';
+  const name = psName.value.trim(), username = psUsername.value.trim(), password = psPassword.value;
+  if(!name) return showError(psError,'Please enter full name.');
+  let uname = username || name.toLowerCase().replace(/\s+/g, '.').replace(/[^a-z0-9._-]/g,'');
+  if(!/^[a-zA-Z0-9._-]{3,}$/.test(uname)) return showError(psError,'Username must be >=3 chars (letters/digits . _ -).');
+  if(!password) return showError(psError,'Please enter password.');
+  if(password.length < 6) return showError(psError,'Password must be >=6 chars.');
+  const users = load(USERS_KEY) || [];
+  let unameFinal = uname; let suffix = 1;
+  while(users.find(u=> u.username === unameFinal)){ unameFinal = uname + suffix; suffix++; }
+  users.push({ username: unameFinal, password, role:'patient', name, age:'—', gender:'—', lastCheckup:'—' });
+  save(USERS_KEY, users);
+  sessionStorage.setItem('st_session', JSON.stringify({ username: unameFinal, role:'patient' }));
+  psName.value=''; psUsername.value=''; psPassword.value='';
+  // Open patient dashboard after signup:
+  renderPatientDashboard();
+});
+
+/* ---------- Doctor signup ---------- */
+const dsName = document.getElementById('ds-name'), dsUsername = document.getElementById('ds-username'), dsPassword = document.getElementById('ds-password'), dsSpecialty = document.getElementById('ds-specialty'), dsPhone = document.getElementById('ds-phone'), dsLocation = document.getElementById('ds-location'), dsCreate = document.getElementById('ds-create'), dsBack = document.getElementById('ds-back'), dsError = document.getElementById('ds-error');
+dsBack.addEventListener('click', ()=> { dsError.style.display='none'; showPage('page-landing'); });
+
+dsCreate.addEventListener('click', ()=> {
+  dsError.style.display='none';
+  const name = dsName.value.trim(), username = dsUsername.value.trim(), password = dsPassword.value, specialty = dsSpecialty.value.trim(), phone = dsPhone.value.trim(), location = dsLocation.value.trim();
+  if(!name) return showError(dsError,'Please enter full name.');
+  let uname = username || name.toLowerCase().replace(/\s+/g, '.').replace(/[^a-z0-9._-]/g,'');
+  if(!/^[a-zA-Z0-9._-]{3,}$/.test(uname)) return showError(dsError,'Username must be >=3 chars (letters/digits . _ -).');
+  if(!password) return showError(dsError,'Please enter password.');
+  if(password.length < 6) return showError(dsError,'Password must be >=6 chars.');
+  if(!specialty) return showError(dsError,'Please enter your specialty.');
+  const users = load(USERS_KEY) || [];
+  let unameFinal = uname; let suffix = 1;
+  while(users.find(u=> u.username === unameFinal)){ unameFinal = uname + suffix; suffix++; }
+  users.push({ username: unameFinal, password, role:'doctor', name, specialty, phone, location });
+  save(USERS_KEY, users);
+  sessionStorage.setItem('st_session', JSON.stringify({ username: unameFinal, role:'doctor' }));
+  dsName.value=''; dsUsername.value=''; dsPassword.value=''; dsSpecialty.value=''; dsPhone.value=''; dsLocation.value='';
+  showToast('Doctor account created — signed in'); 
+  // after creating doctor account, open dashboard automatically:
+  renderDoctorDashboard();
+});
+
+/* ---------- Doctor login ---------- */
+const dlUsername = document.getElementById('dl-username'), dlPassword = document.getElementById('dl-password'), dlLogin = document.getElementById('dl-login'), dlBack = document.getElementById('dl-back'), dlError = document.getElementById('dl-error'), dlGotoSignup = document.getElementById('dl-goto-signup');
+dlBack.addEventListener('click', ()=> { dlError.style.display='none'; showPage('page-landing'); });
+dlGotoSignup.addEventListener('click', ()=> { dlError.style.display='none'; showPage('page-doctor-signup'); });
+dlLogin.addEventListener('click', ()=> {
+  dlError.style.display = 'none';
+  const username = (dlUsername.value||'').trim();
+  const password = dlPassword.value||'';
+  if(!username) return showError(dlError, 'Please enter username.');
+  if(!password) return showError(dlError, 'Please enter password.');
+  const users = load(USERS_KEY) || [];
+  const doc = users.find(u => u.role === 'doctor' && (u.username === username));
+  if(!doc) return showError(dlError, 'No doctor found with that username. Create one or check username.');
+  if(doc.password !== password) return showError(dlError, 'Incorrect password.');
+  sessionStorage.setItem('st_session', JSON.stringify({ username: doc.username, role: 'doctor' }));
+  showToast('Signed in as ' + (doc.name || doc.username));
+  dlUsername.value = ''; dlPassword.value = '';
+  // OPEN DOCTOR DASHBOARD AFTER LOGIN:
+  renderDoctorDashboard();
+});
+
+/* ---------- Symptom / test / suggestion logic (unchanged) ---------- */
+const mainSym = document.getElementById('main-sym'), symNext = document.getElementById('sym-next'), symBack = document.getElementById('sym-back');
+symBack.addEventListener('click', ()=> showPage('page-patient-signup'));
+mainSym.addEventListener('input', ()=> symNext.disabled = !mainSym.value.trim());
+symNext.addEventListener('click', ()=> { if(!mainSym.value.trim()) return; prepareTest(mainSym.value.trim()); showPage('page-test'); });
+
+const qCard = document.getElementById('q-card'), qPrev = document.getElementById('q-prev'), qNext = document.getElementById('q-next'), qSave = document.getElementById('q-save'), progressBar = document.getElementById('test-progress-bar'), progressText = document.getElementById('test-progress-text');
+let testState = { symptom:'', questions:[], answers:[], idx:0 };
+
+function prepareTest(symptom){
+  const s = symptom.toLowerCase();
+  const pools = {
+    general:[ {q:'How long have you had this symptom?', opts:['<1 day','1-3 days','>3 days']}, {q:'Is it getting worse?', opts:['No','Slowly','Rapidly']}, {q:'Any fever?', opts:['No','Mild','High']}, {q:'Any nausea?',opts:['No','Sometimes','Yes']}, {q:'Any breathing difficulty?',opts:['No','Mild','Yes']}, {q:'Any chest pain?',opts:['No','Occasional','Severe']}, {q:'Any swelling?',opts:['No','Mild','Yes']}, {q:'Any bleeding?',opts:['No','Minor','Major']}, {q:'Any recent injury?',opts:['No','Yes']}, {q:'Is it recurring?',opts:['No','Intermittent','Constant']} ],
+    fever:[ {q:'Temperature >38°C?',opts:['No','Yes','Unsure']}, {q:'Chills?',opts:['No','Mild','Yes']}, {q:'Localized pain?',opts:['No','Some','Yes']} ],
+    chest:[ {q:'Pain sharp or constricting?',opts:['Sharp','Constriction','Dull']}, {q:'Worse on exertion?',opts:['No','Somewhat','Yes']}, {q:'Sweating/fainting?',opts:['No','Sometimes','Yes']} ],
+    rash:[ {q:'Is the rash itchy?',opts:['No','Mild','Very']}, {q:'Spread since noticing?',opts:['No','Slowly','Rapidly']}, {q:'Blisters or pus?',opts:['No','Some','Yes']} ]
+  };
+  let qlist = pools.general.slice(0,10);
+  if(/fever|temperature|febr/.test(s)) qlist = (pools.fever.concat(pools.general)).slice(0,10);
+  else if(/chest|breath|heart|angina|palpit/.test(s)) qlist = (pools.chest.concat(pools.general)).slice(0,10);
+  else if(/rash|skin|itch|eczema/.test(s)) qlist = (pools.rash.concat(pools.general)).slice(0,10);
+  testState.symptom = symptom; testState.questions = qlist; testState.answers = Array(qlist.length).fill(null); testState.idx = 0; renderQuestion();
+}
+function renderQuestion(){
+  const i = testState.idx, item = testState.questions[i];
+  qCard.innerHTML = '';
+  const qTitle = document.createElement('div'); qTitle.className='question'; qTitle.textContent = (i+1)+'. '+item.q;
+  const opts = document.createElement('div'); opts.className='options';
+  item.opts.forEach(opt=>{
+    const el = document.createElement('div'); el.className='option'; el.textContent = opt;
+    if(testState.answers[i]===opt) el.classList.add('selected');
+    el.addEventListener('click', ()=> { testState.answers[i]=opt; renderQuestion(); updateProgress(); sessionStorage.setItem('st_test_autosave', JSON.stringify(testState)); });
+    opts.appendChild(el);
+  });
+  qCard.appendChild(qTitle); qCard.appendChild(opts);
+  qPrev.disabled = i===0; qNext.textContent = (i===testState.questions.length-1)?'Finish':'Next ▶';
+  updateProgress();
+}
+function updateProgress(){ const done = testState.answers.filter(a=>a!==null).length, total=testState.questions.length, pct=Math.round((done/total)*100); progressBar.style.width=pct+'%'; progressText.textContent = done + '/' + total; }
+qPrev.addEventListener('click', ()=> { if(testState.idx>0){ testState.idx--; renderQuestion(); }});
+qNext.addEventListener('click', ()=> { if(!testState.answers[testState.idx]) return alert('Please select an option.'); if(testState.idx < testState.questions.length-1){ testState.idx++; renderQuestion(); return; } computeSuggestionAndShow(); });
+qSave.addEventListener('click', ()=> { sessionStorage.setItem('st_test_autosave', JSON.stringify(testState)); alert('Progress saved.'); showPage('page-main-symptom'); document.getElementById('main-sym').value = testState.symptom; symNext.disabled = false; });
+
+/* ---------- Suggestion and matching ---------- */
+function computeSuggestionAndShow(){
+  const s = testState.symptom.toLowerCase();
+  let specialty = 'General Medicine';
+  if(/chest|breath|heart|angina|palpit/.test(s)) specialty = 'Cardiology';
+  else if(/rash|skin|itch|eczema/.test(s)) specialty = 'Dermatology';
+  else if(/bone|fracture|sprain|joint|knee|back|pain/.test(s)) specialty = 'Orthopedics';
+  else if(/preg|period|vaginal|bleeding|cramp/.test(s)) specialty = 'Gynecology';
+  const strong = testState.answers.filter(a => /yes|severe|high|rapid|const/i.test(a)).length;
+  const confidence = strong >= 3 ? 'High' : (strong === 2 ? 'Medium' : 'Low');
+
+  const users = load(USERS_KEY) || [];
+  const demoDoctors = {
+    'Cardiology':[ {name:'Dr. Arup Sen', location:'Bangalore Heart Clinic, MG Road', phone:'+91-9880012345'}, {name:'Dr. Naina Roy', location:'Metro Cardio Center, Park St', phone:'+91-9901122334'} ],
+    'Dermatology':[ {name:'Dr. Soma Mitra', location:'SkinCare Hub, Kolkata', phone:'+91-9876543210'} ],
+    'Orthopedics':[ {name:'Dr. Vikram Singh', location:'OrthoPlus, Delhi', phone:'+91-9966554433'} ],
+    'Gynecology':[ {name:'Dr. Meera Patel', location:'Women Care Clinic, Ahmedabad', phone:'+91-9012345678'} ],
+    'General Medicine':[ {name:'Dr. Anil Kumar', location:'City General, Main St', phone:'+91-9001122334'} ]
+  };
+
+  let matched = (users.filter(u=>u.role==='doctor' && u.specialty && u.specialty.toLowerCase().includes(specialty.toLowerCase())).map(d=> ({name:d.name, location: d.location||'Clinic', phone: d.phone||'N/A', username:d.username})));
+  if(!matched.length) matched = (demoDoctors[specialty]||demoDoctors['General Medicine']);
+
+  document.getElementById('suggest-specialty').textContent = specialty;
+  document.getElementById('suggest-confidence').textContent = confidence;
+  const list = document.getElementById('doctor-list'); list.innerHTML = '';
+
+  matched.forEach((d, idx)=> {
+    const item = document.createElement('div'); item.className='doctor-item';
+    const av = document.createElement('div'); av.className='doc-avatar'; av.textContent = d.name.split(' ').map(n=>n[0]).slice(0,2).join('');
+    const meta = document.createElement('div'); meta.className='doc-meta';
+    const name = document.createElement('div'); name.className='doc-name'; name.textContent = d.name;
+    const sub = document.createElement('div'); sub.className='doc-sub'; sub.innerHTML = `${d.location} • <span style="color:var(--muted)">${d.phone}</span>`;
+    meta.appendChild(name); meta.appendChild(sub);
+    const ops = document.createElement('div'); ops.style.display='flex'; ops.style.gap='8px';
+    const contact = document.createElement('a'); contact.className='btn ghost'; contact.textContent='Contact Now'; contact.href = 'tel:' + (d.phone || '');
+    const book = document.createElement('button'); book.className='btn primary'; book.textContent='Book';
+    book.addEventListener('click', ()=> handleBook(d));
+    ops.appendChild(book); ops.appendChild(contact);
+    item.appendChild(av); item.appendChild(meta); item.appendChild(ops);
+    list.appendChild(item);
+  });
+
+  sessionStorage.setItem('st_last_suggestion', JSON.stringify({ specialty, matched, confidence, symptom: testState.symptom, answers: testState.answers }));
+  showPage('page-suggest');
+}
+
+/* ---------- Booking ---------- */
+function handleBook(doctor){
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess || sess.role!=='patient'){
+    if(confirm('You must be logged in as a patient to book. Sign up now?')) showPage('page-patient-signup');
+    return;
+  }
+  const appts = load(APPTS_KEY) || [];
+  const when = new Date();
+  const appt = { id:'a-'+Date.now(), patient:sess.username, patientName: (load(USERS_KEY)||[]).find(u=>u.username===sess.username)?.name || sess.username, doctorName: doctor.name, doctorPhone: doctor.phone||'N/A', clinic: doctor.location||'Clinic', datetime: when.toISOString(), status:'confirmed', createdAt:new Date().toISOString() };
+  appts.unshift(appt); save(APPTS_KEY, appts);
+
+  const reqs = load(REQS_KEY) || [];
+  const lastSuggestion = JSON.parse(sessionStorage.getItem('st_last_suggestion')||'null');
+  if(lastSuggestion){
+    const idx = reqs.findIndex(r => r.patient === sess.username && r.specialty === lastSuggestion.specialty && r.status === 'pending');
+    if(idx >= 0){ reqs[idx].status = 'confirmed'; reqs[idx].doctor = doctor.name; reqs[idx].apptId = appt.id; save(REQS_KEY, reqs); }
+  }
+  showToast(`Booked with ${doctor.name} — ${new Date(appt.datetime).toLocaleString()}`);
+  // refresh patient dashboard
+  renderPatientDashboard();
+}
+
+/* ---------- Send request ---------- */
+document.getElementById('send-request')?.addEventListener('click', ()=> {
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess || sess.role!=='patient'){ if(confirm('You must be signed in as a patient. Sign up now?')) showPage('page-patient-signup'); return; }
+  const last = JSON.parse(sessionStorage.getItem('st_last_suggestion')||'null');
+  if(!last){ alert('Nothing to send'); return; }
+  const reqs = load(REQS_KEY) || [];
+  const req = { id:'req-'+Date.now(), patient: sess.username, patientName: (load(USERS_KEY)||[]).find(u=>u.username===sess.username)?.name || sess.username, symptom: last.symptom, specialty: last.specialty, answers: last.answers, status: 'pending', createdAt:new Date().toISOString() };
+  reqs.unshift(req); save(REQS_KEY, reqs);
+  showToast('Request sent to specialists.');
+  showPage('page-landing');
+});
+document.getElementById('suggest-back')?.addEventListener('click', ()=> showPage('page-test'));
+
+/* ---------- Small helpers ---------- */
+function showError(container, msg){ container.textContent = msg; container.style.display = 'block'; container.scrollIntoView({behavior:'smooth', block:'center'}); }
+function showToast(msg, ms=2600){ const t = document.getElementById('toast'); t.textContent = msg; t.style.display='block'; t.style.opacity='1'; setTimeout(()=> { t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>{ t.style.display='none'; t.style.transition=''; },420); }, ms); }
+
+/* ---------- Doctor Dashboard logic (new) ---------- */
+function seedDemoIfEmpty(){
+  const reqs = load(REQS_KEY) || [];
+  if(!reqs || reqs.length===0){
+    const now = new Date();
+    const demo = [
+      { id:'req-'+Date.now(), patient:'pritam.s', patientName:'Pritam Sahoo', symptom:'Chest pain and breathlessness', specialty:'Cardiology', answers:['2 days','Rapidly','Yes','Yes'], status:'pending', createdAt: new Date(now - 1000*60*60).toISOString() },
+      { id:'req-'+(Date.now()+1), patient:'alex.k', patientName:'Alex Kumar', symptom:'Small rash on arm', specialty:'Dermatology', answers:['1 day','No','No','No'], status:'pending', createdAt: new Date(now - 1000*60*30).toISOString() },
+      { id:'req-'+(Date.now()+2), patient:'sara.p', patientName:'Sara Paul', symptom:'Back pain after fall', specialty:'Orthopedics', answers:['>3 days','Yes','No','No'], status:'pending', createdAt: new Date(now - 1000*60*60*5).toISOString() }
+    ];
+    save(REQS_KEY, demo);
+  }
+}
+seedDemoIfEmpty();
+
+function computeUrgency(symptom, answers){
+  const text = (symptom + ' ' + (answers||[]).join(' ')).toLowerCase();
+  if(/breath|shortness|faint|unconscious|severe|heavy bleeding|difficulty breathing/.test(text)) return 'high';
+  if(/pain|fever|worsen|swelling|bleeding/.test(text)) return 'medium';
+  return 'low';
+}
+
+function renderDoctorDashboard(){
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess || sess.role!=='doctor'){ showPage('page-doctor-login'); return; }
+  const user = (load(USERS_KEY)||[]).find(u=>u.username===sess.username) || {};
+  document.getElementById('doctor-welcome').textContent = `Welcome, ${user.name || sess.username} ${user.specialty ? '— '+user.specialty : ''}`;
+
+  const reqs = (load(REQS_KEY) || []).slice().sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+  const appts = (load(APPTS_KEY) || []).slice().sort((a,b)=> new Date(a.datetime) - new Date(b.datetime));
+
+  // KPIs
+  const pending = reqs.filter(r=> r.status === 'pending').length;
+  const todayIso = new Date().toISOString().split('T')[0];
+  const todayAppts = appts.filter(a=> a.datetime && a.datetime.split('T')[0] === todayIso).length;
+  const unresolved = reqs.filter(r=> r.status !== 'resolved' && r.status !== 'rejected').length;
+  document.getElementById('kpi-pending').textContent = pending;
+  document.getElementById('kpi-today').textContent = todayAppts;
+  document.getElementById('kpi-unresolved').textContent = unresolved;
+
+  // requests list
+  const rl = document.getElementById('requests-list'); rl.innerHTML = '';
+  reqs.forEach(r=>{
+    const urgency = computeUrgency(r.symptom, r.answers);
+    const item = document.createElement('div'); item.className = 'req-item';
+    const av = document.createElement('div'); av.className = 'req-avatar'; av.textContent = (r.patientName||r.patient||'U').split(' ').map(x=>x[0]).slice(0,2).join('');
+    const main = document.createElement('div'); main.className = 'req-main';
+    const title = document.createElement('div'); title.className = 'req-title'; title.textContent = (r.patientName || r.patient) + ' — ' + r.symptom;
+    const meta = document.createElement('div'); meta.className = 'tiny'; meta.textContent = `Created: ${new Date(r.createdAt).toLocaleString()} • ${r.specialty || 'General'}`;
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px'; actions.style.marginTop='8px';
+    const viewBtn = document.createElement('button'); viewBtn.className='btn ghost'; viewBtn.textContent='View'; viewBtn.addEventListener('click', ()=> openRequestModal(r.id));
+    actions.appendChild(viewBtn);
+    if(r.status === 'pending'){
+      const accept = document.createElement('button'); accept.className='btn primary'; accept.textContent='Accept'; accept.addEventListener('click', ()=> openRequestModal(r.id, true));
+      actions.appendChild(accept);
+    }
+    main.appendChild(title); main.appendChild(meta); main.appendChild(actions);
+    const badge = document.createElement('div'); badge.className = 'badge ' + (urgency==='high'?'high':urgency==='medium'?'medium':'low'); badge.textContent = urgency.toUpperCase();
+    item.appendChild(av); item.appendChild(main); item.appendChild(badge);
+    rl.appendChild(item);
+  });
+
+  // appts list
+  const al = document.getElementById('appt-list'); al.innerHTML = '';
+  appts.forEach(a=>{
+    const ap = document.createElement('div'); ap.className = 'appt-item';
+    const left = document.createElement('div'); left.innerHTML = `<div style="font-weight:700">${a.patientName}</div><div class="tiny">${new Date(a.datetime).toLocaleString()}</div>`;
+    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px';
+    const call = document.createElement('a'); call.className='btn ghost'; call.textContent='Call'; call.href = 'tel:' + (a.doctorPhone || '');
+    const cancel = document.createElement('button'); cancel.className='btn'; cancel.textContent='Cancel'; cancel.addEventListener('click', ()=> { if(confirm('Cancel appointment?')) { cancelAppointment(a.id); }});
+    right.appendChild(call); right.appendChild(cancel);
+    ap.appendChild(left); ap.appendChild(right);
+    al.appendChild(ap);
+  });
+
+  // show dashboard page
+  showPage('page-doctor-dashboard');
+}
+
+/* ---------- Patient dashboard renderer ---------- */
+function renderPatientDashboard(){
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess || sess.role!=='patient'){ showPage('page-patient-signup'); return; }
+  const user = (load(USERS_KEY)||[]).find(u=>u.username===sess.username) || { name: sess.username };
+  // header
+  document.getElementById('patient-name').textContent = `Hello, ${user.name.split(' ')[0] || user.username} 👋`;
+  document.getElementById('patient-avatar').textContent = user.name.split(' ').map(n=>n[0]).slice(0,2).join('');
+  document.getElementById('patient-quick').textContent = `Age: ${user.age||'—'} • Gender: ${user.gender||'—'} • Last check-up: ${user.lastCheckup||'—'}`;
+
+  // requests
+  const reqs = (load(REQS_KEY) || []).filter(r=> r.patient === sess.username);
+  const rcont = document.getElementById('dash-requests'); rcont.innerHTML = '';
+  if(!reqs.length) rcont.innerHTML = '<div class="tiny" style="color:var(--muted)">No requests yet — send one from "Send Request".</div>';
+  reqs.forEach(r=>{
+    const d = document.createElement('div'); d.className='timeline-item';
+    d.innerHTML = `<div style="font-weight:700">${r.symptom}</div><div class="tiny">Specialty: ${r.specialty} • ${new Date(r.createdAt).toLocaleString()} • Status: ${r.status}</div>`;
+    rcont.appendChild(d);
+  });
+
+  // appointments
+  const appts = (load(APPTS_KEY) || []).filter(a=> a.patient === sess.username);
+  const acont = document.getElementById('dash-appointments'); acont.innerHTML = '';
+  if(!appts.length) acont.innerHTML = '<div class="tiny" style="color:var(--muted)">No appointments found.</div>';
+  appts.forEach(a=>{
+    const d = document.createElement('div'); d.className='timeline-item';
+    d.innerHTML = `<div style="font-weight:700">${a.doctorName || 'Doctor'}</div><div class="tiny">${new Date(a.datetime).toLocaleString()} • ${a.clinic || ''} • Status: ${a.status}</div>`;
+    acont.appendChild(d);
+  });
+
+  // reports (demo)
+  const rps = (user.reports || []);
+  const rpscont = document.getElementById('dash-reports'); rpscont.innerHTML = '';
+  if(!rps.length) rpscont.innerHTML = '<div class="tiny" style="color:var(--muted)">No reports uploaded (demo).</div>';
+  rps.forEach(rep=>{
+    const el = document.createElement('div'); el.className='timeline-item'; el.textContent = rep;
+    rpscont.appendChild(el);
+  });
+
+  // timeline
+  const timeline = load(TIMELINE_KEY) || {};
+  const list = (timeline[sess.username] || []);
+  const tcont = document.getElementById('dash-timeline'); tcont.innerHTML = '';
+  if(!list.length) tcont.innerHTML = '<div class="tiny" style="color:var(--muted)">No logs yet — add daily notes below.</div>';
+  list.slice().reverse().forEach(it=>{
+    const el = document.createElement('div'); el.className='timeline-item'; el.innerHTML = `<div style="font-weight:700">${it.text}</div><div class="tiny">${new Date(it.at).toLocaleString()}</div>`;
+    tcont.appendChild(el);
+  });
+
+  // saved doctors demo
+  const sd = user.savedDoctors || [];
+  const sdc = document.getElementById('dash-saved-doctors'); sdc.innerHTML = '';
+  if(!sd.length) sdc.innerHTML = '<div class="tiny" style="color:var(--muted)">No saved doctors yet.</div>';
+  sd.forEach(d=>{
+    const el = document.createElement('div'); el.className='timeline-item'; el.innerHTML = `<div style="font-weight:700">${d.name}</div><div class="tiny">${d.location || ''} • ${d.phone || ''}</div>`;
+    sdc.appendChild(el);
+  });
+
+  // notifications (demo)
+  const nots = (load('st_notifs') || []).filter(n=> n.to === sess.username || n.to === 'all');
+  const nc = document.getElementById('dash-notifs'); nc.innerHTML = '';
+  if(!nots.length) nc.innerHTML = '<div class="tiny" style="color:var(--muted)">No notifications.</div>';
+  nots.forEach(n=>{
+    const el = document.createElement('div'); el.className='timeline-item'; el.innerHTML = `<div style="font-weight:700">${n.title}</div><div class="tiny">${n.body} • ${new Date(n.at).toLocaleString()}</div>`;
+    nc.appendChild(el);
+  });
+
+  // show dashboard page
+  showPage('page-patient-dashboard');
+}
+
+/* ---------- Request modal interactions ---------- */
+const reqModal = document.getElementById('req-modal'), reqTitle = document.getElementById('req-title'), reqMeta = document.getElementById('req-meta'), reqBody = document.getElementById('req-body'), reqReject = document.getElementById('req-reject'), reqAccept = document.getElementById('req-accept'), reqBookForm = document.getElementById('req-book-form'), bookDate = document.getElementById('book-date'), bookTime = document.getElementById('book-time'), bookCancel = document.getElementById('book-cancel'), bookConfirm = document.getElementById('book-confirm');
+let activeRequestId = null;
+function openRequestModal(reqId, openBook = false){
+  const reqs = load(REQS_KEY) || [];
+  const r = reqs.find(x=> x.id === reqId);
+  if(!r) return;
+  activeRequestId = reqId;
+  reqTitle.textContent = `${r.patientName || r.patient} — ${r.specialty || 'General'}`;
+  reqMeta.textContent = `Created: ${new Date(r.createdAt).toLocaleString()} • Status: ${r.status}`;
+  reqBody.innerHTML = `<div style="margin-top:8px">${r.symptom}</div><div class="tiny" style="margin-top:8px">Answers: ${(r.answers||[]).join(' | ')}</div>`;
+  reqBookForm.style.display = openBook ? 'block' : 'none';
+  if(openBook){
+    const dt = new Date(); dt.setHours(dt.getHours()+1);
+    bookDate.value = dt.toISOString().slice(0,10);
+    bookTime.value = ('0'+dt.getHours()).slice(-2)+':00';
+  }
+  reqModal.style.display = 'flex';
+}
+reqReject.addEventListener('click', ()=> {
+  if(!activeRequestId) return;
+  const reqs = load(REQS_KEY) || []; const idx = reqs.findIndex(r=> r.id === activeRequestId); if(idx < 0) return;
+  reqs[idx].status = 'rejected'; save(REQS_KEY, reqs); reqModal.style.display = 'none'; renderDoctorDashboard(); showToast('Request rejected');
+});
+reqAccept.addEventListener('click', ()=> { reqBookForm.style.display = 'block'; });
+bookCancel.addEventListener('click', ()=> { reqBookForm.style.display = 'none'; });
+bookConfirm.addEventListener('click', ()=> {
+  if(!activeRequestId) return;
+  if(!bookDate.value || !bookTime.value) return alert('Pick date & time');
+  const dtISO = new Date(bookDate.value + 'T' + bookTime.value + ':00').toISOString();
+  const reqs = load(REQS_KEY) || []; const idx = reqs.findIndex(r=> r.id === activeRequestId); if(idx < 0) return;
+  reqs[idx].status = 'accepted'; save(REQS_KEY, reqs);
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null'); const doc = (load(USERS_KEY)||[]).find(u=> u.username === (sess && sess.username));
+  const appts = load(APPTS_KEY) || []; const appt = { id:'a-'+Date.now(), patient: reqs[idx].patient, patientName: reqs[idx].patientName, doctor: doc ? doc.username : '', doctorName: doc ? doc.name : '', doctorPhone: doc ? doc.phone : '', clinic: doc ? (doc.location || '') : '', datetime: dtISO, status:'confirmed', createdAt: new Date().toISOString() };
+  appts.unshift(appt); save(APPTS_KEY, appts);
+  reqModal.style.display = 'none'; renderDoctorDashboard(); showToast('Appointment created');
+});
+reqModal.addEventListener('click', (e)=> { if(e.target === reqModal) reqModal.style.display = 'none'; });
+
+/* ---------- Appointment cancel ---------- */
+function cancelAppointment(apptId){
+  const appts = load(APPTS_KEY) || []; const idx = appts.findIndex(a=> a.id === apptId); if(idx<0) return;
+  appts[idx].status = 'cancelled'; save(APPTS_KEY, appts); renderDoctorDashboard(); showToast('Appointment cancelled');
+}
+
+/* ---------- Quick dashboard controls ---------- */
+document.getElementById('refresh-dashboard').addEventListener('click', ()=> renderDoctorDashboard());
+document.getElementById('toggle-online').addEventListener('click', function(){ if(this.textContent.includes('Offline')){ this.textContent='Go Online'; showToast('You are now online'); } else { this.textContent='Go Offline'; showToast('You are now offline'); } });
+document.getElementById('doctor-logout').addEventListener('click', ()=> { sessionStorage.removeItem('st_session'); showToast('Logged out'); showPage('page-landing'); });
+
+/* ---------- Patient dashboard interactions ---------- */
+document.getElementById('dash-blog-submit').addEventListener('click', ()=> {
+  const v = (document.getElementById('dash-blog-input').value||'').trim();
+  if(!v) return alert('Type a problem');
+  // reuse blog suggestion logic:
+  blogProblem.value = v; handleBlogSubmit();
+  document.getElementById('dash-blog-result').innerHTML = blogResult.innerHTML;
+});
+document.getElementById('dash-blog-clear').addEventListener('click', ()=> { document.getElementById('dash-blog-input').value=''; document.getElementById('dash-blog-result').innerHTML=''; });
+
+document.getElementById('timeline-add').addEventListener('click', ()=> {
+  const txt = (document.getElementById('timeline-note').value||'').trim();
+  if(!txt) return alert('Add a note');
+  const s = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!s) return alert('Login required');
+  const all = load(TIMELINE_KEY) || {};
+  all[s.username] = all[s.username] || [];
+  all[s.username].push({ text: txt, at: new Date().toISOString() });
+  save(TIMELINE_KEY, all);
+  document.getElementById('timeline-note').value='';
+  renderPatientDashboard();
+});
+
+document.getElementById('patient-logout').addEventListener('click', ()=> {
+  sessionStorage.removeItem('st_session'); showToast('Logged out'); showPage('page-landing');
+});
+document.getElementById('dash-symptom-btn').addEventListener('click', ()=> showPage('page-main-symptom'));
+document.getElementById('dash-new-request').addEventListener('click', ()=> {
+  const s = JSON.parse(sessionStorage.getItem('st_session')||'null'); if(!s) { showPage('page-patient-signup'); return; }
+  const last = JSON.parse(sessionStorage.getItem('st_last_suggestion')||'null') || { symptom: 'General', specialty: 'General Medicine', answers: [] };
+  const reqs = load(REQS_KEY) || [];
+  const req = { id:'req-'+Date.now(), patient: s.username, patientName: (load(USERS_KEY)||[]).find(u=>u.username===s.username)?.name || s.username, symptom: last.symptom, specialty: last.specialty, answers: last.answers, status: 'pending', createdAt:new Date().toISOString() };
+  reqs.unshift(req); save(REQS_KEY, reqs);
+  showToast('Request sent');
+  renderPatientDashboard();
+});
+
+/* bottom nav */
+document.getElementById('nav-home').addEventListener('click', ()=> renderPatientDashboard());
+document.getElementById('nav-blog').addEventListener('click', ()=> openBlog());
+document.getElementById('nav-appts').addEventListener('click', ()=> { showPage('page-patient-dashboard'); document.getElementById('nav-appts').blur(); });
+document.getElementById('nav-reports').addEventListener('click', ()=> { showPage('page-patient-dashboard'); });
+document.getElementById('nav-profile').addEventListener('click', ()=> { showPage('page-patient-dashboard'); });
+
+/* small shortcuts */
+document.getElementById('open-healthblog').addEventListener('click', ()=> openBlog());
+document.getElementById('open-sub').addEventListener('click', ()=> openSubscription());
+document.getElementById('open-profile').addEventListener('click', ()=> { alert('Profile editor (demo)'); });
+
+document.getElementById('mini-doctor-login').addEventListener('click', ()=> showPage('page-doctor-login'));
+document.getElementById('mini-doctor-create').addEventListener('click', ()=> showPage('page-doctor-signup'));
+
+/* ---------- On load: resume session (updated) ---------- */
+window.addEventListener('load', ()=> {
+  const s = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(s){
+    if(s.role === 'patient'){ renderPatientDashboard(); const autos = JSON.parse(sessionStorage.getItem('st_test_autosave')||'null'); if(autos && autos.symptom) document.getElementById('main-sym').value = autos.symptom; symNext.disabled = !document.getElementById('main-sym').value.trim(); }
+    else if(s.role === 'doctor'){ renderDoctorDashboard(); }
+  } else showPage('page-landing');
+});
+</script>
+</body>
+</html>
