@@ -2078,6 +2078,13 @@ async function handleDoctorQuickBook() {
     return;
   }
   
+  // Check if doctor data is available
+  if (!currentDoctorForModal) {
+    errorDiv.textContent = 'Doctor information not available';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
   // Disable button and show loading state
   bookBtn.disabled = true;
   bookBtn.textContent = 'Booking...';
@@ -2128,12 +2135,16 @@ async function handleDoctorQuickBook() {
       }
     }
     
+    // Save doctor name before closing modal
+    const doctorName = currentDoctorForModal.name;
+    const appointmentTime = appt.startTime;
+    
     // Close modal
     closeDoctorQuickModal();
     
     // Show success toast
-    const dateTimeStr = new Date(appt.startTime).toLocaleString();
-    showToast(`✓ Appointment booked with ${currentDoctorForModal.name} on ${dateTimeStr}`);
+    const dateTimeStr = new Date(appointmentTime).toLocaleString();
+    showToast(`✓ Appointment booked with ${doctorName} on ${dateTimeStr}`);
     
     // Refresh patient dashboard if on that page
     if (pages['page-patient-dashboard'].classList.contains('active')) {
