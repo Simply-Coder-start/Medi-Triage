@@ -106,6 +106,32 @@
   .modal{ background:#061226; border-radius:12px; padding:18px; width:420px; max-width:92%; border:1px solid rgba(255,255,255,0.04); box-shadow:0 18px 60px rgba(0,0,0,0.6); }
   .error-text{ color:var(--danger); font-weight:700; text-align:center; margin-top:8px; }
 
+  /* Doctor Quick-View Modal styles */
+  .doctor-quick-modal-backdrop{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.6); backdrop-filter: blur(5px); z-index:1300; }
+  .doctor-quick-modal{ background:#061226; border-radius:16px; padding:20px; width:520px; max-width:94%; border:1px solid rgba(255,255,255,0.05); box-shadow:0 20px 70px rgba(0,0,0,0.7); max-height:90vh; overflow-y:auto; }
+  .doctor-quick-modal .modal-header{ display:flex; gap:14px; align-items:center; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .doctor-quick-modal .modal-doc-photo{ width:68px; height:68px; border-radius:14px; background:linear-gradient(135deg,var(--accent1),var(--accent2)); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; color:white; flex-shrink:0; }
+  .doctor-quick-modal .modal-doc-info{ flex:1; }
+  .doctor-quick-modal .modal-doc-name{ font-size:19px; font-weight:800; margin-bottom:4px; }
+  .doctor-quick-modal .modal-doc-specialty{ font-size:13px; color:var(--accent1); font-weight:600; }
+  .doctor-quick-modal .map-preview{ width:100%; height:140px; border-radius:10px; overflow:hidden; margin-bottom:14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); }
+  .doctor-quick-modal .map-preview iframe{ width:100%; height:100%; border:none; }
+  .doctor-quick-modal .map-link{ display:inline-flex; align-items:center; gap:6px; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:8px; color:var(--accent1); font-size:13px; text-decoration:none; font-weight:600; }
+  .doctor-quick-modal .clinic-details{ padding:12px; background:rgba(255,255,255,0.01); border-radius:10px; margin-bottom:14px; }
+  .doctor-quick-modal .clinic-detail-row{ display:flex; align-items:flex-start; gap:10px; margin-bottom:8px; font-size:14px; }
+  .doctor-quick-modal .clinic-detail-row:last-child{ margin-bottom:0; }
+  .doctor-quick-modal .clinic-icon{ flex-shrink:0; width:18px; text-align:center; }
+  .doctor-quick-modal .phone-link{ color:var(--accent2); text-decoration:none; font-weight:600; }
+  .doctor-quick-modal .booking-section{ margin-top:16px; }
+  .doctor-quick-modal .section-title{ font-size:14px; font-weight:700; margin-bottom:10px; color:var(--muted); }
+  .doctor-quick-modal .booking-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .doctor-quick-modal .booking-field{ display:flex; flex-direction:column; gap:6px; }
+  .doctor-quick-modal .booking-field.full-width{ grid-column:span 2; }
+  .doctor-quick-modal .booking-field label{ font-size:12px; font-weight:600; color:var(--muted); }
+  .doctor-quick-modal .booking-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+  .doctor-quick-modal .inline-error{ color:var(--danger); font-size:12px; margin-top:8px; display:none; }
+  .doctor-quick-modal .inline-error.show{ display:block; }
+
   .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:32px; background:linear-gradient(90deg,var(--accent2),var(--accent1)); padding:10px 16px; border-radius:12px; color:white; box-shadow:0 10px 40px rgba(11,12,30,0.6); display:none; z-index:1000; }
 
   @media (max-width:880px){
@@ -604,6 +630,86 @@
 
   <!-- Toast -->
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Doctor Quick-View Modal -->
+  <div id="doctor-quick-modal" class="doctor-quick-modal-backdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="doctorQuickModalTitle">
+    <div class="doctor-quick-modal">
+      <!-- Header: Doctor photo, name, specialty -->
+      <div class="modal-header">
+        <div class="modal-doc-photo" id="quick-modal-photo">DR</div>
+        <div class="modal-doc-info">
+          <div class="modal-doc-name" id="quick-modal-name">Dr. Name</div>
+          <div class="modal-doc-specialty" id="quick-modal-specialty">Specialty</div>
+        </div>
+      </div>
+
+      <!-- Map Preview -->
+      <div id="quick-modal-map-container">
+        <!-- Map or link will be inserted here -->
+      </div>
+
+      <!-- Clinic Details -->
+      <div class="clinic-details">
+        <div class="clinic-detail-row">
+          <div class="clinic-icon">📍</div>
+          <div id="quick-modal-address">Clinic Address</div>
+        </div>
+        <div class="clinic-detail-row">
+          <div class="clinic-icon">📞</div>
+          <a href="#" class="phone-link" id="quick-modal-phone">Phone</a>
+        </div>
+        <div class="clinic-detail-row" id="quick-modal-distance-row" style="display:none">
+          <div class="clinic-icon">📏</div>
+          <div id="quick-modal-distance">Distance</div>
+        </div>
+      </div>
+
+      <!-- Booking Controls -->
+      <div class="booking-section">
+        <div class="section-title">📅 Book Appointment</div>
+        
+        <div class="booking-grid">
+          <div class="booking-field">
+            <label for="quick-modal-mode">Visit Mode</label>
+            <select id="quick-modal-mode">
+              <option value="in_person">In Person</option>
+              <option value="video">Video Call</option>
+              <option value="phone">Phone Call</option>
+            </select>
+          </div>
+          
+          <div class="booking-field">
+            <label for="quick-modal-date">Date</label>
+            <input type="date" id="quick-modal-date">
+          </div>
+          
+          <div class="booking-field">
+            <label for="quick-modal-time">Time</label>
+            <input type="time" id="quick-modal-time">
+          </div>
+          
+          <div class="booking-field">
+            <label for="quick-modal-end-time">End Time</label>
+            <input type="time" id="quick-modal-end-time">
+          </div>
+          
+          <div class="booking-field full-width">
+            <label for="quick-modal-notes">Notes (Optional)</label>
+            <textarea id="quick-modal-notes" placeholder="Add any special requests or notes..." style="min-height:60px"></textarea>
+          </div>
+        </div>
+
+        <!-- Inline Error Message -->
+        <div class="inline-error" id="quick-modal-error"></div>
+
+        <!-- Action Buttons -->
+        <div class="booking-actions">
+          <button class="btn ghost" id="quick-modal-cancel">Cancel</button>
+          <button class="btn primary" id="quick-modal-book">Book Appointment</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
 /* ---------- Storage helpers ---------- */
@@ -1160,6 +1266,23 @@ function displayTopDiseaseResults(data, userLocation) {
     item.style.background = 'rgba(255,255,255,0.02)';
     item.style.borderRadius = '12px';
     item.style.border = '1px solid rgba(255,255,255,0.04)';
+    item.style.cursor = 'pointer';
+    item.style.transition = 'transform 0.2s, box-shadow 0.2s';
+    item.title = 'Click to view details and book appointment';
+    item.addEventListener('click', (e) => {
+      // Don't trigger if clicking on a link or button
+      if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+        openDoctorQuickModal(d, userLocation);
+      }
+    });
+    item.addEventListener('mouseenter', () => {
+      item.style.transform = 'translateY(-2px)';
+      item.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+    });
+    item.addEventListener('mouseleave', () => {
+      item.style.transform = '';
+      item.style.boxShadow = '';
+    });
     
     const header = document.createElement('div');
     header.style.display = 'flex';
@@ -1178,6 +1301,10 @@ function displayTopDiseaseResults(data, userLocation) {
     name.textContent = `${index + 1}. ${d.name}`;
     name.style.fontWeight = '700';
     name.style.fontSize = '16px';
+    name.style.cursor = 'pointer';
+    name.style.color = 'var(--accent1)';
+    name.title = 'Click to view details and book appointment';
+    name.addEventListener('click', () => openDoctorQuickModal(d, userLocation));
     
     const specBadge = document.createElement('div');
     specBadge.textContent = d.specialty;
@@ -1266,6 +1393,23 @@ function displayRecommendations(data) {
       item.style.background = 'rgba(255,255,255,0.02)';
       item.style.borderRadius = '12px';
       item.style.border = '1px solid rgba(255,255,255,0.04)';
+      item.style.cursor = 'pointer';
+      item.style.transition = 'transform 0.2s, box-shadow 0.2s';
+      item.title = 'Click to view details and book appointment';
+      item.addEventListener('click', (e) => {
+        // Don't trigger if clicking on a link or button
+        if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+          openDoctorQuickModal(d, null);
+        }
+      });
+      item.addEventListener('mouseenter', () => {
+        item.style.transform = 'translateY(-2px)';
+        item.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+      });
+      item.addEventListener('mouseleave', () => {
+        item.style.transform = '';
+        item.style.boxShadow = '';
+      });
       
       const header = document.createElement('div');
       header.style.display = 'flex';
@@ -1284,6 +1428,10 @@ function displayRecommendations(data) {
       name.textContent = d.name;
       name.style.fontWeight = '700';
       name.style.fontSize = '16px';
+      name.style.cursor = 'pointer';
+      name.style.color = 'var(--accent1)';
+      name.title = 'Click to view details and book appointment';
+      name.addEventListener('click', () => openDoctorQuickModal(d, null));
       
       const specBadge = document.createElement('div');
       specBadge.textContent = rec.specialty;
@@ -1756,6 +1904,261 @@ window.addEventListener('load', ()=> {
     if(s.role === 'patient'){ renderPatientDashboard(); const autos = JSON.parse(sessionStorage.getItem('st_test_autosave')||'null'); if(autos && autos.symptom) document.getElementById('main-sym').value = autos.symptom; symNext.disabled = !document.getElementById('main-sym').value.trim(); }
     else if(s.role === 'doctor'){ renderDoctorDashboard(); }
   } else showPage('page-landing');
+});
+
+/* ---------- Doctor Quick-View Modal ---------- */
+let currentDoctorForModal = null;
+let currentUserLocation = null;
+
+function openDoctorQuickModal(doctor, userLocation = null) {
+  currentDoctorForModal = doctor;
+  currentUserLocation = userLocation;
+  
+  const modal = document.getElementById('doctor-quick-modal');
+  const photo = document.getElementById('quick-modal-photo');
+  const name = document.getElementById('quick-modal-name');
+  const specialty = document.getElementById('quick-modal-specialty');
+  const address = document.getElementById('quick-modal-address');
+  const phone = document.getElementById('quick-modal-phone');
+  const distanceRow = document.getElementById('quick-modal-distance-row');
+  const distance = document.getElementById('quick-modal-distance');
+  const mapContainer = document.getElementById('quick-modal-map-container');
+  const errorDiv = document.getElementById('quick-modal-error');
+  const bookBtn = document.getElementById('quick-modal-book');
+  
+  // Reset form and error
+  errorDiv.classList.remove('show');
+  errorDiv.textContent = '';
+  bookBtn.disabled = false;
+  bookBtn.textContent = 'Book Appointment';
+  
+  // Set header info
+  photo.textContent = doctor.name.split(' ').map(n => n[0]).slice(0, 2).join('');
+  name.textContent = doctor.name;
+  specialty.textContent = doctor.specialty || 'General Practice';
+  
+  // Set clinic details
+  address.textContent = doctor.address || doctor.location || 'Address not available';
+  phone.textContent = doctor.phone || 'N/A';
+  phone.href = doctor.phone ? `tel:${doctor.phone}` : '#';
+  
+  // Show distance if available
+  if (doctor.distance_m !== null && doctor.distance_m !== undefined) {
+    const distKm = (doctor.distance_m / 1000).toFixed(1);
+    distance.textContent = distKm < 1 ? `${doctor.distance_m}m away` : `${distKm}km away`;
+    distanceRow.style.display = 'flex';
+  } else {
+    distanceRow.style.display = 'none';
+  }
+  
+  // Map preview or link
+  mapContainer.innerHTML = '';
+  const hasCoords = (doctor.lat || doctor.clinicLat) && (doctor.lng || doctor.clinicLng);
+  const hasPlaceId = doctor.google_place_id || doctor.place_id;
+  
+  // Note: Embedded maps require Google Maps Embed API key which is not configured
+  // Always show link to Google Maps instead
+  const mapLink = document.createElement('a');
+  mapLink.className = 'map-link';
+  mapLink.target = '_blank';
+  mapLink.innerHTML = '📍 View on Google Maps';
+    
+    if (hasPlaceId) {
+      mapLink.href = `https://www.google.com/maps/place/?q=place_id:${doctor.google_place_id || doctor.place_id}`;
+    } else if (hasCoords) {
+      const lat = doctor.lat || doctor.clinicLat;
+      const lng = doctor.lng || doctor.clinicLng;
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    } else {
+      mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.address || doctor.location || doctor.name)}`;
+    }
+    mapContainer.appendChild(mapLink);
+  
+  // Set default date/time (1 hour from now)
+  const now = new Date();
+  now.setHours(now.getHours() + 1);
+  const dateStr = now.toISOString().slice(0, 10);
+  const timeStr = now.toTimeString().slice(0, 5);
+  const endTime = new Date(now.getTime() + 30 * 60000); // 30 minutes later
+  const endTimeStr = endTime.toTimeString().slice(0, 5);
+  
+  document.getElementById('quick-modal-date').value = dateStr;
+  document.getElementById('quick-modal-time').value = timeStr;
+  document.getElementById('quick-modal-end-time').value = endTimeStr;
+  document.getElementById('quick-modal-notes').value = '';
+  
+  // Show modal
+  modal.style.display = 'flex';
+  
+  // Focus first input for accessibility
+  setTimeout(() => {
+    document.getElementById('quick-modal-mode').focus();
+  }, 100);
+}
+
+function closeDoctorQuickModal() {
+  const modal = document.getElementById('doctor-quick-modal');
+  modal.style.display = 'none';
+  currentDoctorForModal = null;
+  currentUserLocation = null;
+}
+
+async function handleDoctorQuickBook() {
+  const errorDiv = document.getElementById('quick-modal-error');
+  const bookBtn = document.getElementById('quick-modal-book');
+  
+  // Reset error
+  errorDiv.classList.remove('show');
+  errorDiv.textContent = '';
+  
+  // Get form values
+  const mode = document.getElementById('quick-modal-mode').value;
+  const dateVal = document.getElementById('quick-modal-date').value;
+  const timeVal = document.getElementById('quick-modal-time').value;
+  const endTimeVal = document.getElementById('quick-modal-end-time').value;
+  const notes = document.getElementById('quick-modal-notes').value.trim();
+  
+  // Validation
+  if (!dateVal || !timeVal) {
+    errorDiv.textContent = 'Please select date and time';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  if (!endTimeVal) {
+    errorDiv.textContent = 'Please select end time';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  // Validate times
+  const startDT = new Date(`${dateVal}T${timeVal}:00`);
+  const endDT = new Date(`${dateVal}T${endTimeVal}:00`);
+  
+  if (isNaN(startDT) || isNaN(endDT)) {
+    errorDiv.textContent = 'Invalid date/time format';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  if (startDT >= endDT) {
+    errorDiv.textContent = 'Start time must be before end time';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  if (startDT < new Date()) {
+    errorDiv.textContent = 'Cannot book appointments in the past';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  // Check if user is logged in
+  const sess = JSON.parse(sessionStorage.getItem('st_session') || 'null');
+  if (!sess || sess.role !== 'patient') {
+    if (confirm('You must be logged in as a patient to book. Sign up now?')) {
+      closeDoctorQuickModal();
+      showPage('page-patient-signup');
+    }
+    return;
+  }
+  
+  // Check if doctor data is available
+  if (!currentDoctorForModal) {
+    errorDiv.textContent = 'Doctor information not available';
+    errorDiv.classList.add('show');
+    return;
+  }
+  
+  // Disable button and show loading state
+  bookBtn.disabled = true;
+  bookBtn.textContent = 'Booking...';
+  
+  try {
+    // Create appointment using localStorage
+    // Note: This can be extended to call POST /api/appointments/book when backend is available
+    
+    // Get user data
+    const users = load(USERS_KEY) || [];
+    const patient = users.find(u => u.username === sess.username);
+    
+    // Create appointment in localStorage
+    const appts = load(APPTS_KEY) || [];
+    const appt = {
+      id: 'a-' + Date.now(),
+      patient: sess.username,
+      patientName: patient?.name || sess.username,
+      doctorName: currentDoctorForModal.name,
+      doctorPhone: currentDoctorForModal.phone || 'N/A',
+      clinic: currentDoctorForModal.address || currentDoctorForModal.location || 'Clinic',
+      startTime: startDT.toISOString(),
+      endTime: endDT.toISOString(),
+      mode: mode,
+      notes: notes || null,
+      status: 'confirmed',
+      createdAt: new Date().toISOString()
+    };
+    
+    appts.unshift(appt);
+    save(APPTS_KEY, appts);
+    
+    // Update any pending request for this specialty
+    const reqs = load(REQS_KEY) || [];
+    const lastSuggestion = JSON.parse(sessionStorage.getItem('st_last_suggestion') || 'null');
+    if (lastSuggestion) {
+      const idx = reqs.findIndex(r => 
+        r.patient === sess.username && 
+        r.specialty === lastSuggestion.specialty && 
+        r.status === 'pending'
+      );
+      if (idx >= 0) {
+        reqs[idx].status = 'confirmed';
+        reqs[idx].doctor = currentDoctorForModal.name;
+        reqs[idx].apptId = appt.id;
+        save(REQS_KEY, reqs);
+      }
+    }
+    
+    // Save doctor name and time before closing modal
+    const doctorName = currentDoctorForModal.name;
+    
+    // Close modal
+    closeDoctorQuickModal();
+    
+    // Show success toast
+    const dateTimeStr = startDT.toLocaleString();
+    showToast(`✓ Appointment booked with ${doctorName} on ${dateTimeStr}`);
+    
+    // Refresh patient dashboard if on that page
+    if (pages['page-patient-dashboard'].classList.contains('active')) {
+      renderPatientDashboard();
+    }
+    
+  } catch (error) {
+    console.error('Booking error:', error);
+    errorDiv.textContent = 'Error booking appointment. Please try again.';
+    errorDiv.classList.add('show');
+    bookBtn.disabled = false;
+    bookBtn.textContent = 'Book Appointment';
+  }
+}
+
+// Modal event listeners
+document.getElementById('quick-modal-cancel').addEventListener('click', closeDoctorQuickModal);
+document.getElementById('quick-modal-book').addEventListener('click', handleDoctorQuickBook);
+
+// Close modal on backdrop click
+document.getElementById('doctor-quick-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'doctor-quick-modal') {
+    closeDoctorQuickModal();
+  }
+});
+
+// Close modal on ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('doctor-quick-modal').style.display === 'flex') {
+    closeDoctorQuickModal();
+  }
 });
 </script>
 </body>
