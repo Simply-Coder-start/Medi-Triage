@@ -1956,29 +1956,15 @@ function openDoctorQuickModal(doctor, userLocation = null) {
   const hasCoords = (doctor.lat || doctor.clinicLat) && (doctor.lng || doctor.clinicLng);
   const hasPlaceId = doctor.google_place_id || doctor.place_id;
   
-  // Check if Google Maps Embed API key is available (it's not in this app)
-  const apiKey = window.GOOGLE_MAPS_API_KEY || null;
-  
-  if (apiKey && hasCoords) {
-    // Show embedded map if API key is available
-    const lat = doctor.lat || doctor.clinicLat;
-    const lng = doctor.lng || doctor.clinicLng;
-    const mapDiv = document.createElement('div');
-    mapDiv.className = 'map-preview';
-    mapDiv.innerHTML = `<iframe 
-      src="https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${lat},${lng}&zoom=15" 
-      allowfullscreen>
-    </iframe>`;
-    mapContainer.appendChild(mapDiv);
-  } else {
-    // Show link to Google Maps
-    const mapLink = document.createElement('a');
-    mapLink.className = 'map-link';
-    mapLink.target = '_blank';
-    mapLink.innerHTML = '📍 View on Google Maps';
+  // Note: Embedded maps require Google Maps Embed API key which is not configured
+  // Always show link to Google Maps instead
+  const mapLink = document.createElement('a');
+  mapLink.className = 'map-link';
+  mapLink.target = '_blank';
+  mapLink.innerHTML = '📍 View on Google Maps';
     
     if (hasPlaceId) {
-      mapLink.href = `https://www.google.com/maps/place/?q=place_id:${hasPlaceId}`;
+      mapLink.href = `https://www.google.com/maps/place/?q=place_id:${doctor.google_place_id || doctor.place_id}`;
     } else if (hasCoords) {
       const lat = doctor.lat || doctor.clinicLat;
       const lng = doctor.lng || doctor.clinicLng;
@@ -1987,7 +1973,6 @@ function openDoctorQuickModal(doctor, userLocation = null) {
       mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(doctor.address || doctor.location || doctor.name)}`;
     }
     mapContainer.appendChild(mapLink);
-  }
   
   // Set default date/time (1 hour from now)
   const now = new Date();
@@ -2090,9 +2075,8 @@ async function handleDoctorQuickBook() {
   bookBtn.textContent = 'Booking...';
   
   try {
-    // Try backend API first (POST /api/appointments/book)
-    // This requires a request ID, doctor ID, and patient ID from the backend
-    // Since we're in localStorage mode, we'll use the localStorage approach
+    // Create appointment using localStorage
+    // Note: This can be extended to call POST /api/appointments/book when backend is available
     
     // Get user data
     const users = load(USERS_KEY) || [];
@@ -2135,15 +2119,14 @@ async function handleDoctorQuickBook() {
       }
     }
     
-    // Save doctor name before closing modal
+    // Save doctor name and time before closing modal
     const doctorName = currentDoctorForModal.name;
-    const appointmentTime = appt.startTime;
     
     // Close modal
     closeDoctorQuickModal();
     
     // Show success toast
-    const dateTimeStr = new Date(appointmentTime).toLocaleString();
+    const dateTimeStr = startDT.toLocaleString();
     showToast(`✓ Appointment booked with ${doctorName} on ${dateTimeStr}`);
     
     // Refresh patient dashboard if on that page
