@@ -2660,26 +2660,109 @@ dqmBook.addEventListener('click', async () => {
 });
 
 function prepareTest(symptom){
-  // Exact 10 MCQs as specified in requirements
-  const standardQuestions = [
-    {q:'Where is your main problem located?', opts:['Head / face / ears / nose / throat','Chest / breathing / heart','Arms / legs / joints / back'], answerKey:'q1'},
-    {q:'Which best describes the pain?', opts:['Sharp / stabbing','Dull / aching / constant','Burning / tingling / numbness'], answerKey:'q2'},
-    {q:'Any fever or signs of infection?', opts:['Yes — high fever (>38°C)','Mild fever or chills','No fever'], answerKey:'q3'},
-    {q:'Any recent skin changes (rash, bump, ulcer)?', opts:['Yes — rash or visible lesion','Itching or mild irritation','No skin changes'], answerKey:'q4'},
-    {q:'Any problems with hearing, voice, or swallowing?', opts:['Yes — hearing loss / ear pain / voice change / difficulty swallowing','Mild sore throat / congestion','No'], answerKey:'q5'},
-    {q:'Any shortness of breath, chest pain, or palpitations?', opts:['Yes — severe or sudden','Mild exertional breathlessness or palpitations','No'], answerKey:'q6'},
-    {q:'Any digestive symptoms (abdominal pain, vomiting, blood in stool)?', opts:['Severe abdominal pain / vomiting / blood','Mild indigestion / nausea','No digestive symptoms'], answerKey:'q7'},
-    {q:'Any recent injury or trauma to the affected area?', opts:['Yes — recent fracture/sprain/major injury','Minor injury / strain','No injury'], answerKey:'q8'},
-    {q:'Any mood / sleep / concentration changes recently?', opts:['Severe changes — suicidal thoughts / inability to function','Low mood / anxiety / sleep issues','No mental health concerns'], answerKey:'q9'},
-    {q:'Are you pregnant or could you be pregnant? (if applicable)', opts:['Yes / unsure','Not now but trying/planning','Not pregnant / not applicable'], answerKey:'q10'}
-  ];
+  // Dynamic questions based on main symptom selection
+  let questionSet = generateSymptomSpecificQuestions(symptom);
   
   testState.symptom = symptom;
-  testState.questions = standardQuestions;
-  testState.answers = Array(standardQuestions.length).fill(null);
+  testState.questions = questionSet;
+  testState.answers = Array(questionSet.length).fill(null);
   testState.idx = 0;
   renderQuestion();
 }
+
+// Generate symptom-specific follow-up questions
+function generateSymptomSpecificQuestions(symptom){
+  const symp = symptom.toLowerCase().trim();
+  
+  // Default/generic question set
+  let questions = [
+    {q:'Where is your main problem located?', opts:['Head / face / ears / nose / throat','Chest / breathing / heart','Arms / legs / joints / back'], answerKey:'q1'},
+    {q:'Which best describes the problem?', opts:['Sharp / stabbing','Dull / aching / constant','Burning / tingling / numbness'], answerKey:'q2'},
+    {q:'Any fever or signs of infection?', opts:['Yes — high fever (>38°C)','Mild fever or chills','No fever'], answerKey:'q3'},
+    {q:'How long have you had this symptom?', opts:['Less than 24 hours','2-7 days','More than 1 week'], answerKey:'q4'},
+    {q:'Is the symptom getting worse?', opts:['Yes — rapidly worsening','Stable or fluctuating','Improving'], answerKey:'q5'},
+    {q:'Have you taken any medications?', opts:['Yes — prescription medications','Over-the-counter pain relievers','No medications'], answerKey:'q6'},
+    {q:'Any other symptoms alongside this?', opts:['Yes — multiple concurrent symptoms','One or two additional symptoms','Just this symptom'], answerKey:'q7'},
+    {q:'Recent injury or trauma to this area?', opts:['Yes — recent accident/fall/injury','Minor strain or overuse','No injury'], answerKey:'q8'},
+    {q:'Impact on daily activities?', opts:['Severe — unable to work/function','Moderate — some limitations','Mild — minimal impact'], answerKey:'q9'},
+    {q:'Any blood, discharge, or unusual appearance?', opts:['Yes — visible blood or abnormal discharge','Slight discharge or discoloration','No changes in appearance'], answerKey:'q10'}
+  ];
+  
+  // Symptom-specific question sets for common symptoms
+  if(symp.includes('fever') || symp.includes('cold') || symp.includes('flu')){
+    questions = [
+      {q:'What is your current body temperature (if known)?', opts:['Above 39°C (102°F)','38-39°C (100-102°F)','Below 38°C (<100°F) or unknown'], answerKey:'q1'},
+      {q:'How long have you had fever?', opts:['Less than 24 hours','2-3 days','More than 3 days'], answerKey:'q2'},
+      {q:'Any chills or sweating?', opts:['Yes — severe chills and night sweats','Mild chills','No chills'], answerKey:'q3'},
+      {q:'Cough or throat symptoms?', opts:['Yes — persistent cough','Sore throat or mild cough','No respiratory symptoms'], answerKey:'q4'},
+      {q:'Muscle or body aches?', opts:['Yes — severe aches throughout body','Mild aches','No body aches'], answerKey:'q5'},
+      {q:'Headache or fatigue?', opts:['Yes — severe headache and extreme fatigue','Mild headache or tiredness','No headache or fatigue'], answerKey:'q6'},
+      {q:'Any vomiting or diarrhea?', opts:['Yes — unable to keep food down','Mild nausea or loose stool','No digestive symptoms'], answerKey:'q7'},
+      {q:'Exposed to sick contacts recently?', opts:['Yes — confirmed contact with sick people','Possible exposure','No known exposure'], answerKey:'q8'},
+      {q:'Difficulty breathing or confusion?', opts:['Yes — shortness of breath or confusion','Mild difficulty breathing','No breathing issues'], answerKey:'q9'},
+      {q:'Vaccination status (if applicable)?', opts:['Not vaccinated','Partially vaccinated','Fully vaccinated'], answerKey:'q10'}
+    ];
+  }
+  else if(symp.includes('chest') || symp.includes('heart') || symp.includes('breath')){
+    questions = [
+      {q:'Type of chest discomfort?', opts:['Sharp stabbing pain','Pressure or heaviness','Burning or tightness'], answerKey:'q1'},
+      {q:'When did chest pain start?', opts:['Within the last hour','1-24 hours ago','More than 1 day ago'], answerKey:'q2'},
+      {q:'Severity on a scale of 1-10?', opts:['8-10 (severe, unbearable)','5-7 (moderate)','1-4 (mild)'], answerKey:'q3'},
+      {q:'Triggers for the pain?', opts:['Triggered by exertion or stress','Triggered by certain positions','Occurs at rest'], answerKey:'q4'},
+      {q:'Radiation to other areas?', opts:['Yes — pain spreads to arm, jaw, or back','Slight radiation','Localized pain only'], answerKey:'q5'},
+      {q:'Shortness of breath?', opts:['Yes — severe difficulty breathing','Mild shortness of breath','No breathing issues'], answerKey:'q6'},
+      {q:'Palpitations or irregular heartbeat?', opts:['Yes — feeling heart racing or skipping','Occasional palpitations','No palpitations'], answerKey:'q7'},
+      {q:'Recent stress, anxiety, or panic?', opts:['Yes — high stress or panic attack','Mild stress','No stress or anxiety'], answerKey:'q8'},
+      {q:'Associated symptoms (nausea, dizziness)?', opts:['Yes — nausea, dizziness, or sweating','One symptom','No other symptoms'], answerKey:'q9'},
+      {q:'Medical history of heart disease?', opts:['Yes — previous cardiac issues','Family history of heart disease','No known heart problems'], answerKey:'q10'}
+    ];
+  }
+  else if(symp.includes('headache') || symp.includes('head')){
+    questions = [
+      {q:'Type of headache?', opts:['Throbbing/pulsating (migraine-like)','Pressure or tightness (tension)','Sudden severe (thunderclap)'], answerKey:'q1'},
+      {q:'Location of pain?', opts:['One side of head (unilateral)','Front (forehead/sinus)','Back of head or whole head'], answerKey:'q2'},
+      {q:'Severity of headache?', opts:['Severe (worst headache ever)','Moderate (prevents activities)','Mild (annoying but manageable)'], answerKey:'q3'},
+      {q:'Duration of this headache?', opts:['Minutes to 1 hour','Several hours','1 day or more'], answerKey:'q4'},
+      {q:'Associated vision changes?', opts:['Yes — blurred vision or flashing lights','Mild vision discomfort','Normal vision'], answerKey:'q5'},
+      {q:'Nausea or vomiting?', opts:['Yes — vomiting present','Nausea only','No nausea'], answerKey:'q6'},
+      {q:'Sensitivity to light or sound?', opts:['Yes — severe sensitivity','Mild sensitivity','Normal tolerance'], answerKey:'q7'},
+      {q:'Recent head injury or trauma?', opts:['Yes — fall or hit to head','Minor bump','No trauma'], answerKey:'q8'},
+      {q:'Fever or neck stiffness?', opts:['Yes — fever and stiff neck','Slight fever','No fever'], answerKey:'q9'},
+      {q:'Frequency of headaches?', opts:['First time or rare','Occasional (few per month)','Frequent (weekly)'], answerKey:'q10'}
+    ];
+  }
+  else if(symp.includes('cough') || symp.includes('throat')){
+    questions = [
+      {q:'Type of cough?', opts:['Dry (non-productive)','Productive (with phlegm/mucus)','Wheezing/barking'], answerKey:'q1'},
+      {q:'Cough appearance (if productive)?', opts:['Yellow/green or blood-tinged','Clear or white','N/A - dry cough'], answerKey:'q2'},
+      {q:'Duration of cough?', opts:['Less than 1 week','1-2 weeks','More than 2 weeks'], answerKey:'q3'},
+      {q:'Sore throat severity?', opts:['Severe pain on swallowing','Mild discomfort','No sore throat'], answerKey:'q4'},
+      {q:'Difficulty swallowing?', opts:['Yes — difficulty with food or liquids','Only with solid foods','Normal swallowing'], answerKey:'q5'},
+      {q:'Hoarseness or voice changes?', opts:['Yes — voice very hoarse or lost','Slight hoarseness','Voice normal'], answerKey:'q6'},
+      {q:'Shortness of breath?', opts:['Yes — wheezing or breathing difficulty','Mild breathlessness on exertion','Normal breathing'], answerKey:'q7'},
+      {q:'Fever present?', opts:['Yes — high fever','Mild fever or chills','No fever'], answerKey:'q8'},
+      {q:'Recent exposure to sick person?', opts:['Yes — confirmed contact','Possible exposure','No known exposure'], answerKey:'q9'},
+      {q:'Smoking or environmental exposure?', opts:['Current smoker','Former smoker or exposure','No exposure'], answerKey:'q10'}
+    ];
+  }
+  else if(symp.includes('pain') || symp.includes('ache')){
+    questions = [
+      {q:'Specific location of pain?', opts:['Joint (knee, shoulder, elbow)','Muscle (leg, back, arm)','Multiple areas'], answerKey:'q1'},
+      {q:'Type of pain?', opts:['Sharp or stabbing','Dull aching','Burning or throbbing'], answerKey:'q2'},
+      {q:'Duration?', opts:['Acute (started recently)','Chronic (months or years)','Intermittent'], answerKey:'q3'},
+      {q:'Pain severity (1-10)?', opts:['8-10 (severe)','5-7 (moderate)','1-4 (mild)'], answerKey:'q4'},
+      {q:'Swelling or redness?', opts:['Yes — visible swelling or redness','Slight puffiness','No swelling'], answerKey:'q5'},
+      {q:'Limitation of movement?', opts:['Cannot move affected area','Limited but possible','Full range of motion'], answerKey:'q6'},
+      {q:'Recent injury or fall?', opts:['Yes — within last few days','Old injury','No trauma'], answerKey:'q7'},
+      {q:'Numbness or tingling?', opts:['Yes — significant numbness','Slight tingling','No numbness'], answerKey:'q8'},
+      {q:'Relieving factors?', opts:['Rest helps','Heat/ice helps','Nothing helps'], answerKey:'q9'},
+      {q:'Associated weakness?', opts:['Yes — unable to bear weight/use limb','No weakness','Normal strength'], answerKey:'q10'}
+    ];
+  }
+  
+  return questions;
+}
+
 function renderQuestion(){
   const i = testState.idx, item = testState.questions[i];
   qCard.innerHTML = '';
