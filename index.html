@@ -915,6 +915,86 @@
         </div>
       </section>
 
+      <!-- Patient Edit Profile Page -->
+      <section id="page-patient-edit-profile" class="page">
+        <div class="center" style="gap:20px; width:100%; max-width:500px; margin:0 auto;">
+          <h2>Edit Profile</h2>
+          <p class="tiny">Update your personal information</p>
+
+          <!-- Profile Photo Section -->
+          <div style="text-align:center; width:100%;">
+            <div id="pep-photo-preview" style="width:120px; height:120px; margin:0 auto 12px; border-radius:50%; background:#1a3a52; display:flex;align-items:center;justify-content:center; border:2px solid rgba(255,255,255,0.1); font-size:40px; overflow:hidden;">
+              👤
+            </div>
+            <label style="cursor:pointer;">
+              <input type="file" id="pep-photo-input" accept="image/*" style="display:none;">
+              <span class="btn ghost" style="display:inline-block; padding:6px 12px; font-size:13px;">Change Photo</span>
+            </label>
+            <div class="tiny" style="color:var(--muted); margin-top:6px;">JPG, PNG (max 5MB)</div>
+          </div>
+
+          <!-- Form Fields -->
+          <div style="width:100%;">
+            <div class="field"><label>Full name</label><input id="pep-name" type="text" placeholder="e.g., Pritam Sahoo"></div>
+            
+            <div class="field">
+              <label>Age</label><input id="pep-age" type="number" min="1" max="120" placeholder="e.g., 28">
+            </div>
+
+            <div class="field"><label>Gender</label>
+              <select id="pep-gender">
+                <option value="">-- Select Gender --</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Email</label><input id="pep-email" type="email" placeholder="e.g., pritam@example.com">
+            </div>
+
+            <div class="field">
+              <label>Phone</label>
+              <div style="display:flex;gap:8px;">
+                <select id="pep-country-code" style="width:120px;">
+                  <option value="+91">🇮🇳 +91</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+61">🇦🇺 +61</option>
+                  <option value="+81">🇯🇵 +81</option>
+                  <option value="+86">🇨🇳 +86</option>
+                  <option value="+49">🇩🇪 +49</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+971">🇦🇪 +971</option>
+                  <option value="+65">🇸🇬 +65</option>
+                </select>
+                <input id="pep-phone" type="tel" placeholder="XXXXXXXXXX" style="flex:1;">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Address</label><textarea id="pep-address" placeholder="e.g., 123 Main St, Mumbai, Maharashtra"></textarea>
+            </div>
+
+            <div class="field">
+              <label>Last Checkup Date</label><input id="pep-lastCheckup" type="date">
+            </div>
+
+            <div class="field"><label>Password</label><input id="pep-password" type="password" placeholder="Leave blank to keep current (min 6 chars)"></div>
+
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:16px; width:100%;">
+              <button type="button" class="btn primary" id="pep-save">Save Changes</button>
+              <button type="button" class="btn ghost" id="pep-cancel">Cancel</button>
+            </div>
+
+            <div id="pep-error" class="error-text" style="display:none; width:100%;"></div>
+            <div id="pep-success" class="success-text" style="display:none; width:100%;"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- Subscription page -->
       <section id="page-subscription" class="page">
         <div class="sub-container">
@@ -1647,6 +1727,7 @@ const pages = {
   'page-suggest': document.getElementById('page-suggest'),
   'page-doctor-dashboard': document.getElementById('page-doctor-dashboard'),
   'page-patient-dashboard': document.getElementById('page-patient-dashboard'),
+  'page-patient-edit-profile': document.getElementById('page-patient-edit-profile'),
   'page-subscription': document.getElementById('page-subscription'),
   'page-doctor-edit-profile': document.getElementById('page-doctor-edit-profile')
 };
@@ -3652,6 +3733,145 @@ document.getElementById('refresh-dashboard').addEventListener('click', ()=> rend
 document.getElementById('toggle-online').addEventListener('click', function(){ if(this.textContent.includes('Offline')){ this.textContent='Go Online'; showToast('You are now online'); } else { this.textContent='Go Offline'; showToast('You are now offline'); } });
 document.getElementById('doctor-logout').addEventListener('click', ()=> { sessionStorage.removeItem('st_session'); showToast('Logged out'); showPage('page-landing'); });
 
+/* ---------- PATIENT EDIT PROFILE ---------- */
+// Photo upload handler for patient
+document.getElementById('pep-photo-input')?.addEventListener('change', (e)=> {
+  const file = e.target.files[0];
+  if(!file) return;
+  
+  if(!['image/jpeg','image/png','image/gif','image/webp'].includes(file.type)){
+    alert('Only JPG, PNG, GIF, or WebP images allowed');
+    return;
+  }
+  
+  if(file.size > 5 * 1024 * 1024) {
+    alert('File size must be less than 5MB');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = (event)=> {
+    const photoData = event.target.result;
+    const photoPreview = document.getElementById('pep-photo-preview');
+    photoPreview.style.backgroundImage = `url('${photoData}')`;
+    photoPreview.style.backgroundSize = 'cover';
+    photoPreview.style.backgroundPosition = 'center';
+    photoPreview.textContent = '';
+    
+    // Store photo in window for save
+    window.newPatientPhotoData = photoData;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Load patient profile data when page opens
+function loadPatientProfile() {
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess || sess.role !== 'patient') return;
+  
+  const users = load(USERS_KEY) || [];
+  const user = users.find(u=>u.username===sess.username);
+  if(!user) return;
+  
+  // Populate form fields
+  document.getElementById('pep-name').value = user.name || '';
+  document.getElementById('pep-age').value = user.age !== '—' ? user.age : '';
+  document.getElementById('pep-gender').value = user.gender !== '—' ? user.gender : '';
+  document.getElementById('pep-email').value = user.email || '';
+  document.getElementById('pep-address').value = user.address || '';
+  
+  // Handle phone number split
+  if(user.phone && user.phone.includes('-')) {
+    const parts = user.phone.split('-');
+    document.getElementById('pep-country-code').value = parts[0];
+    document.getElementById('pep-phone').value = parts.slice(1).join('-');
+  } else {
+    document.getElementById('pep-country-code').value = '+91';
+    document.getElementById('pep-phone').value = '';
+  }
+  
+  // Handle lastCheckup date
+  if(user.lastCheckup && user.lastCheckup !== '—') {
+    document.getElementById('pep-lastCheckup').value = user.lastCheckup;
+  }
+  
+  // Load photo if exists
+  const photoPreview = document.getElementById('pep-photo-preview');
+  if(user.photo) {
+    photoPreview.style.backgroundImage = `url('${user.photo}')`;
+    photoPreview.style.backgroundSize = 'cover';
+    photoPreview.style.backgroundPosition = 'center';
+    photoPreview.textContent = '';
+  } else {
+    photoPreview.style.backgroundImage = '';
+    photoPreview.textContent = '👤';
+  }
+  
+  // Clear password field
+  document.getElementById('pep-password').value = '';
+  
+  // Clear error/success messages
+  document.getElementById('pep-error').style.display = 'none';
+  document.getElementById('pep-success').style.display = 'none';
+}
+
+document.getElementById('pep-cancel')?.addEventListener('click', ()=> {
+  showPage('page-patient-dashboard');
+  renderPatientDashboard();
+});
+
+document.getElementById('pep-save')?.addEventListener('click', ()=> {
+  const pepError = document.getElementById('pep-error');
+  const pepSuccess = document.getElementById('pep-success');
+  pepError.style.display = 'none';
+  pepSuccess.style.display = 'none';
+  
+  const name = document.getElementById('pep-name').value.trim();
+  const age = document.getElementById('pep-age').value.trim();
+  const gender = document.getElementById('pep-gender').value;
+  const email = document.getElementById('pep-email').value.trim();
+  const countryCode = document.getElementById('pep-country-code').value;
+  const phoneNumber = document.getElementById('pep-phone').value.trim();
+  const phone = phoneNumber ? `${countryCode}-${phoneNumber}` : '';
+  const address = document.getElementById('pep-address').value.trim();
+  const lastCheckup = document.getElementById('pep-lastCheckup').value;
+  const newPassword = document.getElementById('pep-password').value;
+  
+  if(!name) { pepError.textContent = 'Name is required'; pepError.style.display='block'; return; }
+  if(age && (isNaN(age) || age < 1 || age > 120)) { pepError.textContent = 'Please enter a valid age (1-120)'; pepError.style.display='block'; return; }
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { pepError.textContent = 'Please enter a valid email address'; pepError.style.display='block'; return; }
+  if(newPassword && newPassword.length < 6) { pepError.textContent = 'Password must be at least 6 characters'; pepError.style.display='block'; return; }
+  
+  const sess = JSON.parse(sessionStorage.getItem('st_session')||'null');
+  if(!sess) { pepError.textContent = 'Session expired. Please login again'; pepError.style.display='block'; return; }
+  
+  const users = load(USERS_KEY) || [];
+  const idx = users.findIndex(u=>u.username===sess.username);
+  if(idx < 0) { pepError.textContent = 'User not found'; pepError.style.display='block'; return; }
+  
+  users[idx].name = name;
+  users[idx].age = age || '—';
+  users[idx].gender = gender || '—';
+  users[idx].email = email;
+  users[idx].phone = phone;
+  users[idx].address = address;
+  users[idx].lastCheckup = lastCheckup || '—';
+  if(newPassword) users[idx].password = newPassword;
+  if(window.newPatientPhotoData) {
+    users[idx].photo = window.newPatientPhotoData;
+    window.newPatientPhotoData = null;
+  }
+  
+  save(USERS_KEY, users);
+  pepSuccess.textContent = '✓ Profile updated successfully!';
+  pepSuccess.style.display = 'block';
+  
+  setTimeout(()=> {
+    showPage('page-patient-dashboard');
+    renderPatientDashboard();
+  }, 1500);
+});
+
 /* ---------- CHAT BOT LOGIC ---------- */
 const chatBtn = document.getElementById('chat-btn-float');
 const chatWindow = document.getElementById('chat-window');
@@ -3757,11 +3977,17 @@ document.getElementById('sub-back-btn')?.addEventListener('click', goBackFromSub
 document.getElementById('nav-home').addEventListener('click', ()=> renderPatientDashboard());
 document.getElementById('nav-appts').addEventListener('click', ()=> { showPage('page-patient-dashboard'); document.getElementById('nav-appts').blur(); });
 document.getElementById('nav-reports').addEventListener('click', ()=> { showPage('page-patient-dashboard'); });
-document.getElementById('nav-profile').addEventListener('click', ()=> { showPage('page-patient-dashboard'); });
+document.getElementById('nav-profile').addEventListener('click', ()=> { 
+  showPage('page-patient-edit-profile'); 
+  loadPatientProfile(); 
+});
 
 /* small shortcuts */
 document.getElementById('open-sub').addEventListener('click', ()=> openSubscriptionPage());
-document.getElementById('open-profile').addEventListener('click', ()=> { alert('Profile editor (demo)'); });
+document.getElementById('open-profile').addEventListener('click', ()=> { 
+  showPage('page-patient-edit-profile'); 
+  loadPatientProfile(); 
+});
 
 const miniDoctorLogin = document.getElementById('mini-doctor-login');
 const miniDoctorCreate = document.getElementById('mini-doctor-create');
