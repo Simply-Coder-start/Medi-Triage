@@ -2954,12 +2954,59 @@ function renderPatientDashboard(){
   });
 
   // appointments
-  const appts = (load(APPTS_KEY) || []).filter(a=> a.patient === sess.username);
+  const appts = (load(APPTS_KEY) || []).filter(a=> a.patient === sess.username && a.status !== 'cancelled');
   const acont = document.getElementById('dash-appointments'); acont.innerHTML = '';
   if(!appts.length) acont.innerHTML = '<div class="tiny" style="color:var(--muted)">No appointments found.</div>';
   appts.forEach(a=>{
-    const d = document.createElement('div'); d.className='timeline-item';
-    d.innerHTML = `<div style="font-weight:700">${a.doctorName || 'Doctor'}</div><div class="tiny">${new Date(a.datetime).toLocaleString()} • ${a.clinic || ''} • Status: ${a.status}</div>`;
+    const d = document.createElement('div'); d.className='timeline-item'; d.style.display='flex'; d.style.justifyContent='space-between'; d.style.alignItems='center';
+    const info = document.createElement('div');
+    info.innerHTML = `<div style="font-weight:700">${a.doctorName || 'Doctor'}</div><div class="tiny">${new Date(a.datetime).toLocaleString()} • ${a.specialty || ''} • Mode: ${a.mode || 'video'}</div><div class="tiny" style="color:var(--muted); margin-top:4px;">${a.clinic || ''}</div><div class="tiny" style="color:#4ade80; margin-top:4px;">Status: ${a.status}</div>`;
+    
+    const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+    const viewBtn = document.createElement('button'); viewBtn.className='btn ghost'; viewBtn.textContent='Details'; viewBtn.style.padding='6px 12px'; viewBtn.style.fontSize='12px'; 
+    viewBtn.addEventListener('click', ()=> {
+      // Show appointment details in custom modal
+      const detailsModal = document.createElement('div');
+      detailsModal.className = 'modal-backdrop';
+      detailsModal.innerHTML = `
+        <div class="modal">
+          <h3>Appointment Details</h3>
+          <div style="margin-top:12px;">
+            <div><strong>Doctor:</strong> ${a.doctorName}</div>
+            <div style="margin-top:8px;"><strong>Specialty:</strong> ${a.specialty || 'General'}</div>
+            <div style="margin-top:8px;"><strong>Date & Time:</strong> ${new Date(a.datetime).toLocaleString()}</div>
+            <div style="margin-top:8px;"><strong>Mode:</strong> ${a.mode || 'video'}</div>
+            <div style="margin-top:8px;"><strong>Clinic:</strong> ${a.clinic || 'N/A'}</div>
+            <div style="margin-top:8px;"><strong>Status:</strong> <span style="color:#4ade80;">${a.status}</span></div>
+            <div style="margin-top:8px;"><strong>Notes:</strong> ${a.notes || 'None'}</div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+            <button type="button" class="btn ghost" onclick="this.parentElement.parentElement.parentElement.style.display='none';">Close</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(detailsModal);
+      detailsModal.addEventListener('click', (e)=> { if(e.target === detailsModal) detailsModal.remove(); });
+    });
+    
+    const cancelBtn = document.createElement('button'); cancelBtn.className='btn'; cancelBtn.textContent='Cancel'; cancelBtn.style.padding='6px 12px'; cancelBtn.style.fontSize='12px'; cancelBtn.style.color='#ef4444';
+    cancelBtn.addEventListener('click', ()=> {
+      showConfirm('Cancel Appointment', `Are you sure you want to cancel the appointment with ${a.doctorName}?`, ()=> {
+        const allAppts = load(APPTS_KEY) || [];
+        const idx = allAppts.findIndex(x => x.id === a.id);
+        if(idx >= 0) {
+          allAppts[idx].status = 'cancelled';
+          save(APPTS_KEY, allAppts);
+          renderPatientDashboard();
+          showToast('Appointment cancelled');
+        }
+      });
+    });
+    
+    actions.appendChild(viewBtn);
+    actions.appendChild(cancelBtn);
+    d.appendChild(info);
+    d.appendChild(actions);
     acont.appendChild(d);
   });
 
